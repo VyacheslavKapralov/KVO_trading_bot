@@ -2,10 +2,10 @@ from loguru import logger
 import pandas as pd
 import numpy as np
 
-from binance_api.add_dataframe_pandas import get_dataframe_pandas
-from binance_api.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
-from binance_api.klines_futures_without_api import get_klines_futures_without_api
-from binance_api.klines_spot_without_api import get_klines_spot_without_api
+from working_with_data.add_dataframe_pandas import get_dataframe_pandas
+from working_with_data.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
+from binance_api.candle_data.klines_futures_without_api import get_klines_futures_without_api
+from binance_api.candle_data.klines_spot_without_api import get_klines_spot_without_api
 
 
 @logger.catch()
