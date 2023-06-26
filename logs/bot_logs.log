@@ -1,0 +1,4 @@
+2023-06-26T19:42:02.063264+0300 | INFO     | __main__:on_startup:13 - Старт бота 
+2023-06-26T19:42:20.626991+0300 | INFO     | telegram_api.handlers.command_search:coin_info_signal:97 - Интервал в секундах: 3600 
+2023-06-26T19:42:20.628268+0300 | INFO     | telegram_api.handlers.command_search:coin_info_signal:102 - Поиск сигнала 2023-06-26 19:42:20.628268
+На symbol=BTCUSDT, time_frame=1h, period_fast=12, period_slow=22 
