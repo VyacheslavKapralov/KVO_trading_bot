@@ -17,4 +17,4 @@ def log_telegram_bot():
 
 
 if __name__ == '__main__':
-    logger.info("Запуск start_log.py")
+    logger.info('Running start_log.py from module logs')

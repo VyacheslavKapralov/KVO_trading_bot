@@ -16,4 +16,4 @@ def get_klines_futures_without_api(symbol: str, timeframe: str, interval: int):
 
 
 if __name__ == '__main__':
-    logger.info('Запущен klines_spot_without_api.py в модуле binance_api')
+    logger.info('Running klines_futures_without_api.py from module binance_api')

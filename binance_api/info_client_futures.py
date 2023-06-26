@@ -184,6 +184,4 @@ def get_positions_futures():
 
 
 if __name__ == '__main__':
-    logger.info("Запущен binance_api/utility/info_client_futures.py")
-    # for elem in um_futures_client.account(recvWindow=6000)['positions']:
-    logger.info(get_positions_futures())
+    logger.info('Running info_client_futures.py from module binance_api')

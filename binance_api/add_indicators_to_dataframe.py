@@ -39,4 +39,4 @@ def add_stochastic(data: pd.DataFrame, fast: int, slow: int, smooth_k=1):
 
 
 if __name__ == '__main__':
-    logger.info('Запущен add_indicators_to_dataframe.py из модуля binance_api')
+    logger.info('Running add_indicators_to_dataframe.py from module binance_api')

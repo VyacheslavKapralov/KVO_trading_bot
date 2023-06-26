@@ -34,6 +34,5 @@ def get_waiting_time(now, time_frame):
     return round((end_time - now).total_seconds())
 
 
-noww = datetime.datetime.now()
-print(get_waiting_time(noww, '4m'))
-# print(noww.minute)
+if __name__ == '__main__':
+    logger.info('Running time_frames_editing.py from module telegram_api.interaction_exchange')

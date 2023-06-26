@@ -149,4 +149,4 @@ def register_handlers_commands_signal(dp: Dispatcher):
 
 
 if __name__ == '__main__':
-    logger.info('Запущен command_search.py из модуля telegram_api/handlers')
+    logger.info('Running command_search.py from module telegram_api/handlers')

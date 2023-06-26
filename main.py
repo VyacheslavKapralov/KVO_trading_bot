@@ -10,7 +10,7 @@ from telegram_api.handlers import other_commands, command_search
 async def on_startup(_):
     create_database()
     log_telegram_bot()
-    logger.info('Старт бота')
+    logger.info('Start KVO_EMA_Binance_bot')
 
 
 other_commands.register_handlers_commands(dp)

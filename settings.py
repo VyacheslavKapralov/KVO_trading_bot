@@ -1,6 +1,7 @@
 import os
 
 from dotenv import load_dotenv
+from loguru import logger
 from pydantic import BaseSettings, SecretStr, StrictStr
 
 load_dotenv()
@@ -13,3 +14,7 @@ class BinanceSettings(BaseSettings):
 
 class BotSettings(BaseSettings):
     telebot_api: SecretStr = os.getenv('TELEGRAM_TOKEN', None)
+
+
+if __name__ == '__main__':
+    logger.info('Running settings.py')

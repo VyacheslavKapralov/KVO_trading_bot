@@ -83,4 +83,4 @@ async def db_read():
 
 
 if __name__ == '__main__':
-    logger.info('Запущен database.py из модуля database')
+    logger.info('Running database.py from module database')

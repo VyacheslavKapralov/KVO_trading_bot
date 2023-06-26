@@ -1,4 +1,5 @@
 from aiogram.dispatcher.filters.state import StatesGroup, State
+from loguru import logger
 
 
 class CoinInfoStates(StatesGroup):
@@ -10,4 +11,4 @@ class CoinInfoStates(StatesGroup):
 
 
 if __name__ == '__main__':
-    pass
+    logger.info('Running state_machine.py from module telegram_api/handlers')

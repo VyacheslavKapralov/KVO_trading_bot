@@ -48,4 +48,4 @@ def add_price_chart_line_indicator(data: pd.DataFrame, indicators: dict, addplot
 
 
 if __name__ == '__main__':
-    logger.info('Запущен creating_graph.py из модуля binance_api')
+    logger.info('Running creating_graph.py from module binance_api')

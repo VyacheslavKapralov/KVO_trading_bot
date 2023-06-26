@@ -47,4 +47,4 @@ def connect_spot_client():
 
 
 if __name__ == '__main__':
-    logger.info("Запуск binance_api/connect_binance.py")
+    logger.info('Running connect_binance.py from module binance_api')

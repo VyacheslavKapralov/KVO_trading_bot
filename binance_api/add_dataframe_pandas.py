@@ -23,4 +23,4 @@ def get_dataframe_pandas(data):
 
 
 if __name__ == '__main__':
-    logger.info('Запущен add_dataframe_pandas.py в модуле binance_api')
+    logger.info('Running add_dataframe_pandas.py from module binance_api')

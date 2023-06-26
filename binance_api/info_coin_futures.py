@@ -87,5 +87,5 @@ def historical_klines_futures(symbol, timeframe):
 
 
 if __name__ == '__main__':
-    logger.info("Запущен binance_api/utility/info_coin_futures.py")
-    # logger.info(f"{book_ticker_future('BTCUSDT')}")
+    logger.info('Running info_coin_futures.py'
+                ' from module binance_api')

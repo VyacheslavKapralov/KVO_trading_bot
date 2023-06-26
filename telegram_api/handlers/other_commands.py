@@ -33,4 +33,4 @@ def register_handlers_commands(dp: Dispatcher):
 
 
 if __name__ == '__main__':
-    logger.info('Запущен other_commands.py из модуля telegram_api/handlers')
+    logger.info('Running other_commands.py from module telegram_api/handlers')

@@ -47,4 +47,4 @@ def output_signals(exchange_type, symbol, timeframe, period_fast, period_slow, p
 
 
 if __name__ == '__main__':
-    logger.info('Запущен search_signal.py из модуля telegram_api.interaction_exchange')
+    logger.info('Running search_signal.py from module telegram_api.interaction_exchange')

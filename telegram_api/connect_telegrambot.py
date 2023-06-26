@@ -25,4 +25,4 @@ bot, dp = connect()
 
 
 if __name__ == '__main__':
-    logger.info('Start connect_telegrambot.py')
+    logger.info('Running connect_telegrambot.py from module telegram_api')

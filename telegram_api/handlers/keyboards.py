@@ -50,3 +50,7 @@ def search_menu_time_frame():
         InlineKeyboardButton(text='1 week', callback_data='1w'),
         # InlineKeyboardButton(text='1 month', callback_data='1M')
     )
+
+
+if __name__ == '__main__':
+    logger.info('Running keyboards.py from module telegram_api/handlers')
