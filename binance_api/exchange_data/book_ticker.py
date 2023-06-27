@@ -1,3 +1,5 @@
+import json
+
 from loguru import logger
 from binance.error import ClientError
 from binance.um_futures import UMFutures
@@ -6,14 +8,13 @@ from settings import BinanceSettings
 
 
 @logger.catch()
-def commission_rate_futures(symbol: str):
+def book_ticker_futures(symbol):
     try:
         binance_set = BinanceSettings()
 
         connect_um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
                                               secret=binance_set.secret_key.get_secret_value())
-        return connect_um_futures_client.commission_rate(symbol=symbol, recvWindow=6000)
-
+        return connect_um_futures_client.book_ticker(symbol)
     except ClientError as error:
         logger.info(
             "Found error. status: {}, error code: {}, error message: {}".format(
@@ -24,5 +25,8 @@ def commission_rate_futures(symbol: str):
 
 
 if __name__ == '__main__':
-    logger.info('Running commission_rate.py from module binance_api/trade')
-    print(commission_rate_futures("ETHUSDT"))
+    logger.info('Running book_ticker.py from module binance_api/exchange_data')
+
+    # res = book_ticker_futures("ETHUSDT")
+    # with open(f'{"ETHUSDT"}.json', 'w') as file:
+    #     json.dump(res, file, indent=4)

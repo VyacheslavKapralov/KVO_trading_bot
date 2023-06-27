@@ -4,8 +4,8 @@ import numpy as np
 
 from working_with_data.add_dataframe_pandas import get_dataframe_pandas
 from working_with_data.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
-from binance_api.candle_data.klines_futures_without_api import get_klines_futures_without_api
-from binance_api.candle_data.klines_spot_without_api import get_klines_spot_without_api
+from binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api
+from binance_api.exchange_data.klines_spot_without_api import get_klines_spot_without_api
 
 
 @logger.catch()
@@ -39,11 +39,11 @@ def output_signals(exchange_type, symbol, timeframe, period_fast, period_slow, p
 
     if data['position'][-2] == 'long' and data['position'][-1] == 'short' \
             and data['Close'][-1] < data[f"EMA_{period_trend_line}"][-1]:
-        return 'OPEN_SHORT'
+        return 'SHORT'
 
     elif data['position'][-2] == 'short' and data['position'][-1] == 'long' \
             and data['Close'][-1] > data[f"EMA_{period_trend_line}"][-1]:
-        return 'OPEN_LONG'
+        return 'LONG'
 
 
 if __name__ == '__main__':
