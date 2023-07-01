@@ -7,7 +7,7 @@ from settings import BinanceSettings
 
 @logger.catch()
 def new_order_futures(symbol: str, side: str, position_side: str, type_position: str, quantity: float,
-                      time_in_force: str, price: float, close_position=False):
+                      time_in_force: str, price: float):
     try:
         binance_set = BinanceSettings()
 
@@ -16,12 +16,11 @@ def new_order_futures(symbol: str, side: str, position_side: str, type_position:
         return connect_um_futures_client.new_order(
             symbol=symbol,
             side=side,
-            close_position=close_position,
             positionSide=position_side,
             type=type_position,
             quantity=quantity,
             timeInForce=time_in_force,
-            price=price
+            price=price,
         )
 
     except ClientError as error:
@@ -34,7 +33,8 @@ def new_order_futures(symbol: str, side: str, position_side: str, type_position:
 
 
 @logger.catch()
-def new_order_spot(symbol: str, side: str, type_position: str, quantity: float, time_in_force: str, price: float):
+def new_order_spot(symbol: str, side: str, type_position: str, quantity: float, time_in_force: str,
+                   price: float):
     try:
         binance_set = BinanceSettings()
 
@@ -59,4 +59,4 @@ def new_order_spot(symbol: str, side: str, type_position: str, quantity: float, 
 
 
 if __name__ == '__main__':
-    logger.info('Running cancel_open_orders.py from module binance_api/trade')
+    logger.info('Running new_order.py from module binance_api/trade')

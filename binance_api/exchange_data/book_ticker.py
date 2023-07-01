@@ -26,7 +26,3 @@ def book_ticker_futures(symbol):
 
 if __name__ == '__main__':
     logger.info('Running book_ticker.py from module binance_api/exchange_data')
-
-    # res = book_ticker_futures("ETHUSDT")
-    # with open(f'{"ETHUSDT"}.json', 'w') as file:
-    #     json.dump(res, file, indent=4)

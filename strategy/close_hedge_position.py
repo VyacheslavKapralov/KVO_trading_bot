@@ -1,18 +1,28 @@
 from loguru import logger
 from binance.error import ClientError
 from binance.um_futures import UMFutures
-
 from settings import BinanceSettings
 
 
 @logger.catch()
-def commission_rate_futures(symbol: str):
+def close_hedge_position_futures(symbol: str, position_side: str, quantity: float, price: float):
     try:
         binance_set = BinanceSettings()
-
         connect_um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
                                               secret=binance_set.secret_key.get_secret_value())
-        return connect_um_futures_client.commission_rate(symbol=symbol, recvWindow=6000)
+        if position_side == "LONG":
+            side = "SELL"
+        else:
+            side = "BUY"
+
+        return connect_um_futures_client.new_order(
+            symbol=symbol,
+            side=side,
+            positionSide=position_side,
+            type="LIMIT",
+            quantity=quantity,
+            price=price,
+        )
 
     except ClientError as error:
         logger.info(
@@ -24,4 +34,4 @@ def commission_rate_futures(symbol: str):
 
 
 if __name__ == '__main__':
-    logger.info('Running commission_rate.py from module binance_api/trade')
+    logger.info('Running close_hedge_position.py from module strategy')

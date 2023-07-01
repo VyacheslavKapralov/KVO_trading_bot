@@ -19,11 +19,11 @@ def open_position_futures(coin, side: str, position_side: str, price: float, per
                 symbol=coin,
                 side=side,
                 position_side=position_side,
-                type_position='LIMIT',
+                type_position="LIMIT",
                 quantity=volume_max,
                 time_in_force="GTC",
-                price=price,
-                close_position=False)
+                price=price
+            )
     else:
         return balance_client
 
@@ -35,10 +35,10 @@ def get_quantity_max_min(coin: str):
     for symbol in exchange_info["symbols"]:
         if symbol["symbol"] == coin:
             quote_asset = symbol["quoteAsset"]
-            for _filter in symbol["filters"]:
-                if _filter["filterType"] == "LOT_SIZE":
-                    max_quantity = _filter["maxQty"]
-                    min_quantity = _filter["minQty"]
+            for filter_ in symbol["filters"]:
+                if filter_["filterType"] == "LOT_SIZE":
+                    max_quantity = filter_["maxQty"]
+                    min_quantity = filter_["minQty"]
                     return max_quantity, min_quantity, quote_asset
 
 
@@ -57,26 +57,5 @@ def get_volume_max(balance_client, position_min_quantity, percentage_deposit, pr
     return int(balance_client * percentage_deposit / price * dec) / dec
 
 
-res_lt = {
-    'orderId': 8389765605216607009,
-    'symbol': 'ETHUSDT',
-    'status': 'NEW',
-    'clientOrderId': 'TjRjPvvUfALAAk8ITk32MQ',
-    'price': '1700.00',
-    'avgPrice': '0.00',
-    'origQty': '0.010',
-    'executedQty': '0.000',
-    'cumQty': '0.000',
-    'cumQuote': '0.00000',
-    'timeInForce': 'GTC',
-    'type': 'LIMIT',
-    'reduceOnly': False,
-    'closePosition': False,
-    'side': 'BUY',
-    'positionSide': 'LONG',
-    'stopPrice': '0.00',
-    'workingType': 'CONTRACT_PRICE',
-    'priceProtect': False,
-    'origType': 'LIMIT',
-    'updateTime': 1687861721661
-}
+if __name__ == '__main__':
+    logger.info('Running open_position.py from module strategy')

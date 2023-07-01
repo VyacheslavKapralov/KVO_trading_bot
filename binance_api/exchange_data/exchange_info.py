@@ -27,17 +27,3 @@ def exchange_info_futures():
 
 if __name__ == '__main__':
     logger.info('Running exchange_info.py from module binance_api/exchange_data')
-
-    res = exchange_info_futures()
-
-    for symbol in res["symbols"]:
-        # print(symbol)
-        if symbol["symbol"] == "BTCUSDT":
-            for _filter in symbol["filters"]:
-                if _filter["filterType"] == "LOT_SIZE":
-                    position_min_quantity = float(_filter["maxQty"])
-                    position_max_quantity = float(_filter["minQty"])
-    # print(position_max_quantity, position_min_quantity)
-    # with open(f'DATA.json', 'w') as file:
-    #     json.dump(res, file, indent=4)
-    #
