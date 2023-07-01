@@ -6,6 +6,7 @@ class CoinInfoStates(StatesGroup):
     exchange_type = State()
     coin_name = State()
     time_frame = State()
+    percentage_deposit = State()
     ema = State()
     ma = State()
 

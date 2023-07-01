@@ -2,12 +2,36 @@ from loguru import logger
 
 from binance_api.client_information.get_balance import get_balance_futures
 from binance_api.exchange_data.exchange_info import exchange_info_futures
+from binance_api.exchange_data.ticker_price import ticker_price_futures
 from binance_api.trade.commission_rate import commission_rate_futures
 from binance_api.trade.new_order import new_order_futures
 
 
 @logger.catch()
-def open_position_futures(coin, side: str, position_side: str, price: float, percentage_deposit: float = 0.1):
+def opening_price_calculation(coin: str, exchange_type: str) -> float:
+    if exchange_type == "FUTURES":
+        return float(ticker_price_futures(coin)['price'])
+    else:
+        pass
+
+
+@logger.catch()
+def open_position(coin: str, exchange_type: str, position_side: str, percentage_deposit: float):
+    if position_side == "LONG":
+        side = "BUY"
+    else:
+        side = "SELL"
+
+    price = opening_price_calculation(coin, exchange_type)
+
+    if exchange_type == "FUTURES":
+        return open_position_futures(coin, side, position_side, price, percentage_deposit)
+    else:
+        pass
+
+
+@logger.catch()
+def open_position_futures(coin, side: str, position_side: str, price: float, percentage_deposit: float):
     position_max_quantity, position_min_quantity, quote_asset = get_quantity_max_min(coin)
     fee = float(commission_rate_futures(coin)['takerCommissionRate'])
 
@@ -58,4 +82,4 @@ def get_volume_max(balance_client, position_min_quantity, percentage_deposit, pr
 
 
 if __name__ == '__main__':
-    logger.info('Running open_position.py from module strategy')
+    logger.info('Running open_position.py from module actions_with_positions')

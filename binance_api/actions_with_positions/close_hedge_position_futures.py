@@ -34,4 +34,4 @@ def close_hedge_position_futures(symbol: str, position_side: str, quantity: floa
 
 
 if __name__ == '__main__':
-    logger.info('Running close_hedge_position.py from module strategy')
+    logger.info('Running close_hedge_position_futures.py from module actions_with_positions')

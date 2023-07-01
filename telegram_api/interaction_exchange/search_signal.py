@@ -4,8 +4,7 @@ import numpy as np
 
 from working_with_data.add_dataframe_pandas import get_dataframe_pandas
 from working_with_data.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
-from binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api
-from binance_api.exchange_data.klines_spot_without_api import get_klines_spot_without_api
+from binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api, get_klines_spot_without_api
 
 
 @logger.catch()

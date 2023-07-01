@@ -7,6 +7,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
 from database.database import db_write
+from binance_api.strategy import action_choice
 from telegram_api.handlers.keyboards import search_menu_exchange, search_menu_ticker, search_menu_time_frame
 from telegram_api.handlers.other_commands import command_start
 from telegram_api.handlers.state_machine import CoinInfoStates
@@ -52,13 +53,21 @@ async def coin_info_time_frame(callback: types.CallbackQuery, state: FSMContext)
     async with state.proxy() as data:
         data['time_frame'] = callback.data
     await CoinInfoStates.next()
+    await callback.message.answer('Какой процент от свободного депозита использовать?')
+
+
+@logger.catch()
+async def coin_info_percentage_deposit(callback: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        data['percentage_deposit'] = float(callback.data) / 100
+    await CoinInfoStates.next()
     await callback.message.answer('Введи период быстрой экспоненциальной скользящей средней')
 
 
 @logger.catch()
 async def coin_info_ema(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['ema'] = message.text
+        data['ema'] = int(message.text)
     await CoinInfoStates.next()
     await message.answer('Введи период медленной простой скользящей средней')
 
@@ -66,7 +75,7 @@ async def coin_info_ema(message: types.Message, state: FSMContext):
 @logger.catch()
 async def coin_info_ma(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['ma'] = message.text
+        data['ma'] = int(message.text)
 
     await CoinInfoStates.next()
     await message.answer(f"Начинаю поиск сигналов на бирже Binance\n"
@@ -77,12 +86,19 @@ async def coin_info_ma(message: types.Message, state: FSMContext):
                          f"EMA: {data['ema']}\n"
                          f"MA: {message.text}")
 
-    signal = await coin_info_signal(message, data)
+    signal, flag, position = await coin_info_signal(message, data)
 
     await message.answer(f"Получен сигнал {signal} на инструменте {data['coin_name']}, "
                          f"тайм-фрейм: {data['time_frame']}\n"
                          f"Скользящие средние:\n"
                          f"Быстрая - {data['ema']}, медленная - {data['ma']}")
+
+    if flag:
+        await message.answer(f"Размещен лимитный ордер:\n"
+                             f"{position}")
+    else:
+        await message.answer(f"На данном активе уже есть позиция:\n"
+                             f"{position}\n")
 
     await state.finish()
     await state.reset_state()
@@ -90,8 +106,9 @@ async def coin_info_ma(message: types.Message, state: FSMContext):
 
 @logger.catch()
 async def coin_info_signal(message, data):
-    exchange_type, coin_name, time_frame, ema, ma = \
-        data['exchange_type'], data['coin_name'], data['time_frame'], int(data['ema']), int(data['ma'])
+    exchange_type, coin_name, time_frame, percentage_deposit, ema, ma = \
+        data['exchange_type'], data['coin_name'], data['time_frame'], data['percentage_deposit'], data['ema'], \
+        data['ma']
 
     timeout_seconds = get_timeout_response(time_frame)
     logger.info(f"Интервал в секундах: {timeout_seconds}")
@@ -108,11 +125,11 @@ async def coin_info_signal(message, data):
         if 0 <= seconds_passed < 10 or waiting_time_seconds == 0:
             logger.info(f'Отправка запроса на сервер.')
 
-            result = output_signals(exchange_type=exchange_type, symbol=coin_name, timeframe=time_frame,
+            signal = output_signals(exchange_type=exchange_type, symbol=coin_name, timeframe=time_frame,
                                     period_fast=ema, period_slow=ma)
-            logger.info(f'Получен сигнал: {result}')
+            logger.info(f'Получен сигнал: {signal}')
 
-            if result:
+            if signal:
                 db_write(
                     date_time=now.strftime("%Y-%m-%d %H:%M:%S"),
                     client_id=message.from_user.id,
@@ -122,10 +139,16 @@ async def coin_info_signal(message, data):
                     period=time_frame,
                     ema=ema,
                     ma=ma,
-                    signal=result
+                    signal=signal
                 )
 
-                return result
+                flag, position = action_choice(
+                    coin=coin_name,
+                    exchange_type=exchange_type,
+                    position_side=signal,
+                    percentage_deposit=percentage_deposit)
+
+                return signal, flag, position
 
         else:
             await asyncio.sleep(waiting_time_seconds)
@@ -142,6 +165,7 @@ def register_handlers_commands_signal(dp: Dispatcher):
     dp.register_callback_query_handler(coin_info_exchange_type, state=CoinInfoStates.exchange_type)
     dp.register_callback_query_handler(coin_info_coin_name, state=CoinInfoStates.coin_name)
     dp.register_callback_query_handler(coin_info_time_frame, state=CoinInfoStates.time_frame)
+    dp.register_callback_query_handler(coin_info_percentage_deposit, state=CoinInfoStates.percentage_deposit)
     dp.register_message_handler(coin_info_ema, state=CoinInfoStates.ema)
     dp.register_message_handler(coin_info_ma, state=CoinInfoStates.ma)
     dp.register_message_handler(command_chancel, commands=['сброс'], state='*')

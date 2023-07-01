@@ -1,9 +1,10 @@
 import json
 
+from binance.um_futures import UMFutures
 from loguru import logger
 from binance.error import ClientError
 from binance_api.connect_binance import connect_um_futures_client
-
+from settings import BinanceSettings
 
 um_futures_client = connect_um_futures_client()
 
@@ -163,9 +164,13 @@ def get_commission_rate_futures(symbol):
 
 @logger.catch()
 def get_positions_futures():
+    binance_set = BinanceSettings()
+    connect_um_futures_clientt = UMFutures(key=binance_set.api_key.get_secret_value(),
+                                           secret=binance_set.secret_key.get_secret_value())
+
     positions_list = []
     try:
-        positions = um_futures_client.account(recvWindow=6000)['positions']
+        positions = connect_um_futures_clientt.account(recvWindow=6000)['positions']
         for position in positions:
             if float(position['askNotional']) > 0:
                 positions_list.append(position)
@@ -174,6 +179,24 @@ def get_positions_futures():
 
         return tuple(positions_list)
 
+    except ClientError as error:
+        logger.info(
+            "Found error. status: {}, error code: {}, error message: {}".format(
+                error.status_code, error.error_code, error.error_message
+            )
+        )
+        return error.error_message
+
+
+@logger.catch()
+def get_position_margin_history(symbol):
+    binance_set = BinanceSettings()
+    connect_um_futures_clientt = UMFutures(key=binance_set.api_key.get_secret_value(),
+                                           secret=binance_set.secret_key.get_secret_value())
+    connect_um_futures_clientt.account
+
+    try:
+        return connect_um_futures_clientt.get_position_margin_history(symbol=symbol, recvWindow=6000)
     except ClientError as error:
         logger.info(
             "Found error. status: {}, error code: {}, error message: {}".format(
