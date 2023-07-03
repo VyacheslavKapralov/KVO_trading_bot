@@ -57,11 +57,11 @@ async def coin_info_time_frame(callback: types.CallbackQuery, state: FSMContext)
 
 
 @logger.catch()
-async def coin_info_percentage_deposit(callback: types.CallbackQuery, state: FSMContext):
+async def coin_info_percentage_deposit(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['percentage_deposit'] = float(callback.data) / 100
+        data['percentage_deposit'] = float(message.text) / 100
     await CoinInfoStates.next()
-    await callback.message.answer('Введи период быстрой экспоненциальной скользящей средней')
+    await message.answer('Введи период быстрой экспоненциальной скользящей средней')
 
 
 @logger.catch()
@@ -165,7 +165,7 @@ def register_handlers_commands_signal(dp: Dispatcher):
     dp.register_callback_query_handler(coin_info_exchange_type, state=CoinInfoStates.exchange_type)
     dp.register_callback_query_handler(coin_info_coin_name, state=CoinInfoStates.coin_name)
     dp.register_callback_query_handler(coin_info_time_frame, state=CoinInfoStates.time_frame)
-    dp.register_callback_query_handler(coin_info_percentage_deposit, state=CoinInfoStates.percentage_deposit)
+    dp.register_message_handler(coin_info_percentage_deposit, state=CoinInfoStates.percentage_deposit)
     dp.register_message_handler(coin_info_ema, state=CoinInfoStates.ema)
     dp.register_message_handler(coin_info_ma, state=CoinInfoStates.ma)
     dp.register_message_handler(command_chancel, commands=['сброс'], state='*')
