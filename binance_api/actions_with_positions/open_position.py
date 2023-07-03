@@ -8,34 +8,38 @@ from binance_api.trade.new_order import new_order_futures
 
 
 @logger.catch()
-def price_calculation(coin: str, exchange_type: str) -> float:
+def price_calculation(coin: str, exchange_type: str) -> str:
     if exchange_type == "FUTURES":
-        return float(ticker_price_futures(coin)['price'])
+        return ticker_price_futures(coin)['price']
     else:
         pass
 
 
 @logger.catch()
 def open_position(coin: str, exchange_type: str, position_side: str, percentage_deposit: float):
+    price = price_calculation(coin, exchange_type)
+    decimal_places = len(price.split('.')[-1])
+    price = float(price)
+
     if position_side == "LONG":
         side = "BUY"
+        price -= price * 0.0002
     else:
         side = "SELL"
-
-    price = price_calculation(coin, exchange_type)
+        price += price * 0.0002
 
     if exchange_type == "FUTURES":
-        return open_position_futures(coin, side, position_side, price, percentage_deposit)
+        return open_position_futures(coin, side, position_side, round(price, decimal_places), percentage_deposit)
     else:
         pass
 
 
 @logger.catch()
 def open_position_futures(coin, side: str, position_side: str, price: float, percentage_deposit: float):
-    position_max_quantity, position_min_quantity, quote_asset = get_quantity_max_min(coin)
+    position_max_quantity, position_min_quantity, quote_asset = get_quantity_max_min_futures(coin)
     fee = float(commission_rate_futures(coin)['takerCommissionRate'])
 
-    if balance_client := get_free_balance_coin(quote_asset):
+    if balance_client := get_free_balance_coin_futures(quote_asset):
         volume_max = get_volume_max(balance_client, position_min_quantity, percentage_deposit, price)
 
         if float(position_min_quantity) <= volume_max + volume_max * fee:
@@ -53,7 +57,7 @@ def open_position_futures(coin, side: str, position_side: str, price: float, per
 
 
 @logger.catch()
-def get_quantity_max_min(coin: str):
+def get_quantity_max_min_futures(coin: str):
     exchange_info = exchange_info_futures()
 
     for symbol in exchange_info["symbols"]:
@@ -67,7 +71,7 @@ def get_quantity_max_min(coin: str):
 
 
 @logger.catch()
-def get_free_balance_coin(asset_name: str) -> float:
+def get_free_balance_coin_futures(asset_name: str) -> float:
     res = get_balance_futures()
     for coin in res:
         if coin["asset"] == asset_name:

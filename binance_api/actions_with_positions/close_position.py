@@ -1,58 +1,50 @@
 from loguru import logger
-from binance.error import ClientError
-from binance.um_futures import UMFutures
 
 from binance_api.exchange_data.ticker_price import ticker_price_futures
-from settings import BinanceSettings
+from binance_api.trade.new_order import new_order_futures, new_order_spot
 
 
 @logger.catch()
 def price_calculation(coin: str, exchange_type: str) -> float:
     if exchange_type == "FUTURES":
-        return float(ticker_price_futures(coin)['price'])
+        return ticker_price_futures(coin)['price']
     else:
         pass
 
 
 @logger.catch()
 def close_position(coin: str, exchange_type: str, position_side: str, quantity: float):
+    price = price_calculation(coin, exchange_type)
+    decimal_places = len(price.split('.')[-1])
+    price = float(price)
+
     if position_side == "LONG":
         side = "SELL"
+        price += price * 0.0002
+
     else:
         side = "BUY"
-
-    price = price_calculation(coin, exchange_type)
+        price -= price * 0.0002
 
     if exchange_type == "FUTURES":
-        return close_hedge_position_futures(coin, side, position_side, quantity, price)
-    else:
-        pass
-
-
-@logger.catch()
-def close_hedge_position_futures(coin: str, side: str, position_side: str, quantity: float, price: float):
-    try:
-        binance_set = BinanceSettings()
-        connect_um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
-                                              secret=binance_set.secret_key.get_secret_value())
-
-        return connect_um_futures_client.new_order(
+        return new_order_futures(
             symbol=coin,
             side=side,
-            positionSide=position_side,
-            type="LIMIT",
-            timeInForce="GTC",
+            position_side=position_side,
+            type_position="LIMIT",
             quantity=quantity,
-            price=price,
+            time_in_force="GTC",
+            price=round(price, decimal_places)
         )
-
-    except ClientError as error:
-        logger.info(
-            "Found error. status: {}, error code: {}, error message: {}".format(
-                error.status_code, error.error_code, error.error_message
-            )
+    else:
+        return new_order_spot(
+            symbol=coin,
+            side=side,
+            type_position="LIMIT",
+            quantity=quantity,
+            time_in_force="GTC",
+            price=round(price, decimal_places)
         )
-        return error.error_message
 
 
 if __name__ == '__main__':

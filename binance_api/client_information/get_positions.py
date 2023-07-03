@@ -13,8 +13,7 @@ def get_positions_futures():
     try:
         positions = connect_um_futures_client.account(recvWindow=6000)['positions']
         not_null_positions = (position for position in positions if
-                              float(position['askNotional']) > 0 or float(position['bidNotional']) > 0)
-
+                              float(position['positionAmt']) != 0)
         return not_null_positions
 
     except ClientError as error:
