@@ -12,10 +12,10 @@ def get_positions_futures():
                                           secret=binance_set.secret_key.get_secret_value())
     try:
         positions = connect_um_futures_client.account(recvWindow=6000)['positions']
-        positions_list = [position for position in positions if
-                          float(position['askNotional']) > 0 or float(position['bidNotional']) > 0]
+        not_null_positions = (position for position in positions if
+                              float(position['askNotional']) > 0 or float(position['bidNotional']) > 0)
 
-        return tuple(positions_list)
+        return not_null_positions
 
     except ClientError as error:
         logger.info(

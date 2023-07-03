@@ -8,7 +8,7 @@ from binance_api.trade.new_order import new_order_futures
 
 
 @logger.catch()
-def opening_price_calculation(coin: str, exchange_type: str) -> float:
+def price_calculation(coin: str, exchange_type: str) -> float:
     if exchange_type == "FUTURES":
         return float(ticker_price_futures(coin)['price'])
     else:
@@ -22,7 +22,7 @@ def open_position(coin: str, exchange_type: str, position_side: str, percentage_
     else:
         side = "SELL"
 
-    price = opening_price_calculation(coin, exchange_type)
+    price = price_calculation(coin, exchange_type)
 
     if exchange_type == "FUTURES":
         return open_position_futures(coin, side, position_side, price, percentage_deposit)
