@@ -1,5 +1,3 @@
-import json
-
 from loguru import logger
 from binance.error import ClientError
 from binance.um_futures import UMFutures

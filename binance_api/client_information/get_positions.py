@@ -1,3 +1,5 @@
+from typing import Any, Generator
+
 from loguru import logger
 from binance.error import ClientError
 from binance.spot import Spot
@@ -23,6 +25,16 @@ def get_positions_futures():
             )
         )
         return error.error_message
+
+
+@logger.catch()
+def all_positions(coin: str, exchange_type: str) -> Generator[Any, Any, None]:
+    if exchange_type == "FUTURES":
+        positions = get_positions_futures()
+    else:
+        positions = None
+
+    return (val for val in positions if val.get('symbol') == coin)
 
 
 if __name__ == '__main__':

@@ -25,13 +25,14 @@ def adding_dataframe_ema(data, period_fast, period_slow, period_trend_line):
 
 
 @logger.catch()
-def add_position(data: pd.DataFrame, period_fast, period_slow):
+def add_position(data: pd.DataFrame, period_fast: int, period_slow: int):
     data['position'] = np.where(data[f'EMA_{period_fast}'] - data[f'MA_{period_slow}'] > 0, 'long', 'short')
     return data
 
 
 @logger.catch()
-def output_signals(exchange_type, symbol, timeframe, period_fast, period_slow, period_trend_line=25):
+def output_signals(exchange_type: str, symbol: str, timeframe: str, period_fast: int, period_slow: int,
+                   period_trend_line: int) -> str:
     data = add_dataframe(exchange_type, symbol, timeframe, period_trend_line)
     data = adding_dataframe_ema(data, period_fast, period_slow, period_trend_line)
     data = add_position(data, period_fast, period_slow)

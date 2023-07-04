@@ -63,11 +63,9 @@ def get_quantity_max_min_futures(coin: str):
     for symbol in exchange_info["symbols"]:
         if symbol["symbol"] == coin:
             quote_asset = symbol["quoteAsset"]
-            for filter_ in symbol["filters"]:
-                if filter_["filterType"] == "LOT_SIZE":
-                    max_quantity = filter_["maxQty"]
-                    min_quantity = filter_["minQty"]
-                    return max_quantity, min_quantity, quote_asset
+            max_quantity = symbol["filters"][1].get("maxQty")
+            min_quantity = symbol["filters"][1].get("minQty")
+            return max_quantity, min_quantity, quote_asset
 
 
 @logger.catch()
@@ -82,7 +80,7 @@ def get_free_balance_coin_futures(asset_name: str) -> float:
 def get_volume_max(balance_client, position_min_quantity, percentage_deposit, price) -> float:
     decimal_places = len(position_min_quantity.split('.')[-1])
     dec = 10 ** decimal_places
-    return int(balance_client * percentage_deposit / price * dec) / dec
+    return int(balance_client * percentage_deposit / 100 / price * dec) / dec
 
 
 if __name__ == '__main__':

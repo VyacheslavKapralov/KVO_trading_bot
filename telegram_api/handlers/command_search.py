@@ -6,6 +6,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
+from binance_api.client_information.get_positions import all_positions
 from database.database import db_write
 from binance_api.strategy import action_choice
 from telegram_api.handlers.keyboards import search_menu_exchange, search_menu_ticker, search_menu_time_frame
@@ -21,7 +22,7 @@ async def command_chancel(message: types.Message, state: FSMContext):
     if current_state is None:
         return
 
-    await message.reply('Сброс')
+    await message.reply('Работа бота остановлена. Проверьте инструмент на наличие открытых позиций.')
     await state.finish()
     await command_start(message)
 
@@ -59,7 +60,15 @@ async def coin_info_time_frame(callback: types.CallbackQuery, state: FSMContext)
 @logger.catch()
 async def coin_info_percentage_deposit(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['percentage_deposit'] = float(message.text) / 100
+        data['percentage_deposit'] = message.text
+    await CoinInfoStates.next()
+    await message.answer('Введи период экспоненциальной скользящей средней для линии тренда')
+
+
+@logger.catch()
+async def coin_info_trend_line(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['trend_line'] = int(message.text)
     await CoinInfoStates.next()
     await message.answer('Введи период быстрой экспоненциальной скользящей средней')
 
@@ -77,56 +86,53 @@ async def coin_info_ma(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['ma'] = int(message.text)
 
-    await CoinInfoStates.next()
+    await coin_signal(message, data)
+    await state.reset_state()
+    await state.finish()
+
+
+@logger.catch()
+async def coin_signal(message, data):
+
+    timeout_seconds = get_timeout_response(data['time_frame'])
+    logger.info(f"Интервал: {timeout_seconds} сек.")
+
     await message.answer(f"Начинаю поиск сигналов на бирже Binance\n"
                          f"Параметры поиска:\n"
                          f"Секция биржи: {data['exchange_type']}\n"
                          f"Тикер инструмента: {data['coin_name']}\n"
                          f"Тайм-фрейм: {data['time_frame']}\n"
+                         f"Процент используемого депозита: {data['percentage_deposit']}%\n"
+                         f"Линия тренда - экспоненциальная скользящая средняя: {data['trend_line']}\n"
                          f"EMA: {data['ema']}\n"
-                         f"MA: {message.text}")
-
-    signal, flag, position = await coin_info_signal(message, data)
-
-    await message.answer(f"Получен сигнал {signal} на инструменте {data['coin_name']}, "
-                         f"тайм-фрейм: {data['time_frame']}\n"
-                         f"Скользящие средние:\n"
-                         f"Быстрая - {data['ema']}, медленная - {data['ma']}")
-
-    if flag:
-        await message.answer(f"Размещен лимитный ордер:\n"
-                             f"{position}")
-    else:
-        await message.answer(f"На данном активе уже есть позиция:\n"
-                             f"{position}\n")
-
-    await state.finish()
-    await state.reset_state()
-
-
-@logger.catch()
-async def coin_info_signal(message, data):
-    exchange_type, coin_name, time_frame, percentage_deposit, ema, ma = \
-        data['exchange_type'], data['coin_name'], data['time_frame'], data['percentage_deposit'], data['ema'], \
-        data['ma']
-
-    timeout_seconds = get_timeout_response(time_frame)
-    logger.info(f"Интервал в секундах: {timeout_seconds}")
+                         f"MA: {data['ma']}")
 
     while True:
+        positions = tuple(all_positions(data['coin_name'], data['exchange_type']))
+
+        if len(positions) > 1:
+            await message.answer(f"На данном активе уже есть две противоположные позиции:\n"
+                                 f"{positions}\n"
+                                 f"Скорректируйте позиции на инструменте, чтоб бот мог на нем работать. "
+                                 f"Можно оставить только одну позицию.")
+            return
+
         now = datetime.datetime.now()
 
-        logger.info(f'Поиск сигнала {now}\n'
-                    f'На symbol={coin_name}, time_frame={time_frame}, period_fast={ema}, period_slow={ma}')
+        logger.info(f"Поиск сигнала {now}\n"
+                    f"На symbol={data['coin_name']}, exchange_type={data['exchange_type']}, "
+                    f"time_frame={data['time_frame']}, percentage_deposit={data['percentage_deposit']}, "
+                    f"trend_line={data['trend_line']}, period_fast={data['ema']}, period_slow={data['ma']}")
 
-        waiting_time_seconds = get_waiting_time(now, time_frame)
+        waiting_time_seconds = get_waiting_time(now, data['time_frame'])
         seconds_passed = timeout_seconds - waiting_time_seconds
 
         if 0 <= seconds_passed < 10 or waiting_time_seconds == 0:
             logger.info(f'Отправка запроса на сервер.')
 
-            signal = output_signals(exchange_type=exchange_type, symbol=coin_name, timeframe=time_frame,
-                                    period_fast=ema, period_slow=ma)
+            signal = output_signals(exchange_type=data['exchange_type'], symbol=data['coin_name'],
+                                    timeframe=data['time_frame'], period_trend_line=data['trend_line'],
+                                    period_fast=data['ema'], period_slow=data['ma'])
             logger.info(f'Получен сигнал: {signal}')
 
             if signal:
@@ -134,42 +140,54 @@ async def coin_info_signal(message, data):
                     date_time=now.strftime("%Y-%m-%d %H:%M:%S"),
                     client_id=message.from_user.id,
                     user_name=message.from_user.username,
-                    exchange=exchange_type,
-                    ticker=coin_name,
-                    period=time_frame,
-                    ema=ema,
-                    ma=ma,
+                    exchange=data['exchange_type'],
+                    ticker=data['coin_name'],
+                    period=data['time_frame'],
+                    ema=data['ema'],
+                    ma=data['ma'],
                     signal=signal
                 )
 
-                flag, position = action_choice(
-                    coin=coin_name,
-                    exchange_type=exchange_type,
-                    position_side=signal,
-                    percentage_deposit=percentage_deposit)
+                await message.answer(f"Получен сигнал {signal} на инструменте {data['coin_name']}, "
+                                     f"тайм-фрейм: {data['time_frame']}\n"
+                                     f"Скользящие средние:\n"
+                                     f"Быстрая - {data['ema']}, медленная - {data['ma']}")
 
-                return signal, flag, position
+                flag, position = action_choice(
+                    coin=data['coin_name'],
+                    exchange_type=data['exchange_type'],
+                    position_side=signal,
+                    percentage_deposit=float(data['percentage_deposit']),
+                    positions=positions)
+
+                if flag:
+                    await message.answer(f"Размещен лимитный ордер:\n"
+                                         f"По цене {position}")
+                else:
+                    await message.answer(f"На данном активе уже есть попутная позиция:\n"
+                                         f"{position}\n")
 
         else:
             await asyncio.sleep(waiting_time_seconds)
             continue
 
-        logger.info(f'Ожидаем закрытия периода {time_frame}.')
+        logger.info(f"Ожидаем закрытия периода {data['time_frame']}.")
         await asyncio.sleep(timeout_seconds)
-        logger.info(f'Закрытие периода {time_frame}.')
+        logger.info(f"Закрытие периода {data['time_frame']}.")
 
 
 @logger.catch()
 def register_handlers_commands_signal(dp: Dispatcher):
+    dp.register_message_handler(command_chancel, commands=['сброс'], state='*')
+    dp.register_message_handler(command_chancel, Text(equals='сброс', ignore_case=True), state='*')
     dp.register_message_handler(command_search_signal, commands=['search'], state=None)
     dp.register_callback_query_handler(coin_info_exchange_type, state=CoinInfoStates.exchange_type)
     dp.register_callback_query_handler(coin_info_coin_name, state=CoinInfoStates.coin_name)
     dp.register_callback_query_handler(coin_info_time_frame, state=CoinInfoStates.time_frame)
     dp.register_message_handler(coin_info_percentage_deposit, state=CoinInfoStates.percentage_deposit)
+    dp.register_message_handler(coin_info_trend_line, state=CoinInfoStates.trend_line)
     dp.register_message_handler(coin_info_ema, state=CoinInfoStates.ema)
     dp.register_message_handler(coin_info_ma, state=CoinInfoStates.ma)
-    dp.register_message_handler(command_chancel, commands=['сброс'], state='*')
-    dp.register_message_handler(command_chancel, Text(equals='сброс', ignore_case=True), state='*')
 
 
 if __name__ == '__main__':

@@ -24,4 +24,3 @@ def ticker_price_futures(symbol):
 
 if __name__ == '__main__':
     logger.info('Running ticker_price.py from module binance_api/exchange_data')
-    print(ticker_price_futures("ETHUSDT"))

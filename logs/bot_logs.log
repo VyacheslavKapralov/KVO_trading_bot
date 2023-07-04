@@ -362,3 +362,372 @@ AttributeError: 'Message' object has no attribute 'data'
 2023-07-03T16:10:08.246356+0300 | INFO     | telegram_api.handlers.command_search:coin_info_signal:130 - Получен сигнал: SHORT 
 2023-07-03T16:10:08.246356+0300 | INFO     | database.database:db_write:53 - Внесение в базу данных:
 ('2023-07-03 16:10:06', 1393876641, 'v_kapralov', 'FUTURES', 'LTCUSDT', '5m', 9, 14, 'SHORT') 
+2023-07-04T10:53:15.597489+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T10:54:56.745496+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:111 - Интервал: 300 сек. 
+2023-07-04T10:54:56.745496+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:116 - Поиск сигнала 2023-07-04 10:54:56.745496
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T10:54:59.750492+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:116 - Поиск сигнала 2023-07-04 10:54:59.750492
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T10:54:59.750492+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:125 - Отправка запроса на сервер. 
+2023-07-04T10:55:01.248014+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:130 - Получен сигнал: None 
+2023-07-04T10:55:01.248546+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:169 - Ожидаем закрытия периода 5m. 
+2023-07-04T10:57:04.049804+0300 | ERROR    | aiogram.dispatcher.handler:notify:117 - An error has been caught in function 'notify', process 'MainProcess' (16288), thread 'MainThread' (15552): 
+Traceback (most recent call last):
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\main.py", line 22, in <module>
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    │        │             │                                 └ <function on_startup at 0x0000028AC2288360>
+    │        │             └ <aiogram.dispatcher.dispatcher.Dispatcher object at 0x0000028AC5E7E550>
+    │        └ <function start_polling at 0x0000028AC5D30C20>
+    └ <module 'aiogram.utils.executor' from 'C:\\Users\\Slava\\PycharmProjects\\KVO_EMA_Binance_bot\\venv\\Lib\\site-packages\\aiog...
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\utils\executor.py", line 45, in start_polling
+    executor.start_polling(
+    │        └ <function Executor.start_polling at 0x0000028AC5D31760>
+    └ <aiogram.utils.executor.Executor object at 0x0000028ADD7C1790>
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\utils\executor.py", line 323, in start_polling
+    loop.run_forever()
+    │    └ <function ProactorEventLoop.run_forever at 0x0000028AC4346480>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Python311\Lib\asyncio\windows_events.py", line 321, in run_forever
+    super().run_forever()
+  File "C:\Python311\Lib\asyncio\base_events.py", line 604, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x0000028AC42C3240>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Python311\Lib\asyncio\base_events.py", line 1909, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x0000028AC4264180>
+    └ <Handle <TaskStepMethWrapper object at 0x0000028ADE956260>()>
+  File "C:\Python311\Lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle <TaskStepMethWrapper object at 0x0000028ADE956260>()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle <TaskStepMethWrapper object at 0x0000028ADE956260>()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle <TaskStepMethWrapper object at 0x0000028ADE956260>()>
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\handler.py", line 117, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+                     │           │        │       └ {}
+                     │           │        └ (<Update {"update_id": 402101469, "message": {"message_id": 87, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вя...
+                     │           └ <bound method Dispatcher.process_update of <aiogram.dispatcher.dispatcher.Dispatcher object at 0x0000028AC5E7E550>>
+                     └ Handler.HandlerObj(handler=<bound method Dispatcher.process_update of <aiogram.dispatcher.dispatcher.Dispatcher object at 0x0...
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 256, in process_update
+    return await self.message_handlers.notify(update.message)
+                 │    │                │      │      └ <aiogram.types.fields.Field object at 0x0000028AC5124910>
+                 │    │                │      └ <Update {"update_id": 402101469, "message": {"message_id": 87, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вяч...
+                 │    │                └ <function Handler.notify at 0x0000028AC5C5CE00>
+                 │    └ <aiogram.dispatcher.handler.Handler object at 0x0000028AC43AF750>
+                 └ <aiogram.dispatcher.dispatcher.Dispatcher object at 0x0000028AC5E7E550>
+> File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\handler.py", line 117, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+                     │           │        │       └ {'state': <aiogram.dispatcher.storage.FSMContext object at 0x0000028ADD635010>}
+                     │           │        └ (<Message {"message_id": 87, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вячеслав", "last_name": "Капралов", "...
+                     │           └ <function coin_info_ma at 0x0000028ADE94AD40>
+                     └ Handler.HandlerObj(handler=<function coin_info_ma at 0x0000028ADE94AD40>, spec=FullArgSpec(args=['message', 'state'], varargs...
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\telegram_api\handlers\command_search.py", line 86, in coin_info_ma
+    data['ma'] = int(message.text)
+    │                │       └ <aiogram.types.fields.Field object at 0x0000028AC50D8C90>
+    │                └ <Message {"message_id": 87, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вячеслав", "last_name": "Капралов", "u...
+    └ <aiogram.dispatcher.storage.FSMContextProxy object at 0x0000028ADE9866D0>
+
+ValueError: invalid literal for int() with base 10: '/chancel'
+2023-07-04T10:58:10.825645+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T10:58:54.145184+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:111 - Интервал: 300 сек. 
+2023-07-04T10:58:54.146183+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:116 - Поиск сигнала 2023-07-04 10:58:54.146183
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T10:59:38.523749+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:00:03.825024+0300 | ERROR    | aiogram.dispatcher.handler:notify:117 - An error has been caught in function 'notify', process 'MainProcess' (1832), thread 'MainThread' (3588): 
+Traceback (most recent call last):
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\main.py", line 22, in <module>
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    │        │             │                                 └ <function on_startup at 0x00000264E7128360>
+    │        │             └ <aiogram.dispatcher.dispatcher.Dispatcher object at 0x00000264EADAE550>
+    │        └ <function start_polling at 0x00000264EAC60C20>
+    └ <module 'aiogram.utils.executor' from 'C:\\Users\\Slava\\PycharmProjects\\KVO_EMA_Binance_bot\\venv\\Lib\\site-packages\\aiog...
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\utils\executor.py", line 45, in start_polling
+    executor.start_polling(
+    │        └ <function Executor.start_polling at 0x00000264EAC61760>
+    └ <aiogram.utils.executor.Executor object at 0x00000264833C7210>
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\utils\executor.py", line 323, in start_polling
+    loop.run_forever()
+    │    └ <function ProactorEventLoop.run_forever at 0x00000264E9276480>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Python311\Lib\asyncio\windows_events.py", line 321, in run_forever
+    super().run_forever()
+  File "C:\Python311\Lib\asyncio\base_events.py", line 604, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x00000264E91E3240>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Python311\Lib\asyncio\base_events.py", line 1909, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x00000264E9184180>
+    └ <Handle <TaskStepMethWrapper object at 0x00000264838821D0>()>
+  File "C:\Python311\Lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle <TaskStepMethWrapper object at 0x00000264838821D0>()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle <TaskStepMethWrapper object at 0x00000264838821D0>()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle <TaskStepMethWrapper object at 0x00000264838821D0>()>
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\handler.py", line 117, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+                     │           │        │       └ {}
+                     │           │        └ (<Update {"update_id": 402101486, "message": {"message_id": 112, "from": {"id": 1393876641, "is_bot": false, "first_name": "В...
+                     │           └ <bound method Dispatcher.process_update of <aiogram.dispatcher.dispatcher.Dispatcher object at 0x00000264EADAE550>>
+                     └ Handler.HandlerObj(handler=<bound method Dispatcher.process_update of <aiogram.dispatcher.dispatcher.Dispatcher object at 0x0...
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 256, in process_update
+    return await self.message_handlers.notify(update.message)
+                 │    │                │      │      └ <aiogram.types.fields.Field object at 0x00000264EA0548D0>
+                 │    │                │      └ <Update {"update_id": 402101486, "message": {"message_id": 112, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вя...
+                 │    │                └ <function Handler.notify at 0x00000264EAB8CE00>
+                 │    └ <aiogram.dispatcher.handler.Handler object at 0x00000264EAFF2850>
+                 └ <aiogram.dispatcher.dispatcher.Dispatcher object at 0x00000264EADAE550>
+> File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\handler.py", line 117, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+                     │           │        │       └ {'state': <aiogram.dispatcher.storage.FSMContext object at 0x00000264838AEFD0>}
+                     │           │        └ (<Message {"message_id": 112, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вячеслав", "last_name": "Капралов", ...
+                     │           └ <function coin_info_ema at 0x0000026483876AC0>
+                     └ Handler.HandlerObj(handler=<function coin_info_ema at 0x0000026483876AC0>, spec=FullArgSpec(args=['message', 'state'], vararg...
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\telegram_api\handlers\command_search.py", line 78, in coin_info_ema
+    data['ema'] = int(message.text)
+    │                 │       └ <aiogram.types.fields.Field object at 0x00000264EA008CD0>
+    │                 └ <Message {"message_id": 112, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вячеслав", "last_name": "Капралов", "...
+    └ <aiogram.dispatcher.storage.FSMContextProxy object at 0x00000264838B6890>
+
+ValueError: invalid literal for int() with base 10: '/сброс'
+2023-07-04T11:00:38.256862+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:01:22.906648+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:111 - Интервал: 300 сек. 
+2023-07-04T11:01:22.907667+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:116 - Поиск сигнала 2023-07-04 11:01:22.907667
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:02:01.178262+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:02:14.024975+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:112 - Интервал: 300 сек. 
+2023-07-04T11:02:14.024975+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:117 - Поиск сигнала 2023-07-04 11:02:14.024975
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:02:37.312085+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:02:54.572425+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:113 - Интервал: 300 сек. 
+2023-07-04T11:02:54.572425+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:118 - Поиск сигнала 2023-07-04 11:02:54.572425
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:05:18.880595+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:05:44.208111+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:106 - Интервал: 300 сек. 
+2023-07-04T11:05:44.209149+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:111 - Поиск сигнала 2023-07-04 11:05:44.209149
+На symbol=ETHUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=3, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:23:23.039734+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:24:56.615022+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:116 - Интервал: 300 сек. 
+2023-07-04T11:24:56.615022+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:121 - Поиск сигнала 2023-07-04 11:24:56.615022
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:24:59.629062+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:121 - Поиск сигнала 2023-07-04 11:24:59.629062
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:24:59.629062+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:130 - Отправка запроса на сервер. 
+2023-07-04T11:25:01.145604+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:135 - Получен сигнал: None 
+2023-07-04T11:25:01.145604+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T11:30:01.150284+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T11:30:01.150284+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:121 - Поиск сигнала 2023-07-04 11:30:01.150284
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:30:01.151279+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:130 - Отправка запроса на сервер. 
+2023-07-04T11:30:02.726508+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:135 - Получен сигнал: LONG 
+2023-07-04T11:30:02.727507+0300 | INFO     | database.database:db_write:53 - Внесение в базу данных:
+('2023-07-04 11:30:01', 1393876641, 'v_kapralov', 'FUTURES', 'LTCUSDT', '5m', 9, 14, 'LONG') 
+2023-07-04T11:30:03.200362+0300 | ERROR    | telegram_api.handlers.command_search:coin_info_ma:89 - An error has been caught in function 'coin_info_ma', process 'MainProcess' (1980), thread 'MainThread' (11328): 
+Traceback (most recent call last):
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\main.py", line 22, in <module>
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    │        │             │                                 └ <function on_startup at 0x00000198E1A48360>
+    │        │             └ <aiogram.dispatcher.dispatcher.Dispatcher object at 0x00000198E5741410>
+    │        └ <function start_polling at 0x00000198E5550C20>
+    └ <module 'aiogram.utils.executor' from 'C:\\Users\\Slava\\PycharmProjects\\KVO_EMA_Binance_bot\\venv\\Lib\\site-packages\\aiog...
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\utils\executor.py", line 45, in start_polling
+    executor.start_polling(
+    │        └ <function Executor.start_polling at 0x00000198E5551760>
+    └ <aiogram.utils.executor.Executor object at 0x00000198FD24A750>
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\utils\executor.py", line 323, in start_polling
+    loop.run_forever()
+    │    └ <function ProactorEventLoop.run_forever at 0x00000198E3B66480>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Python311\Lib\asyncio\windows_events.py", line 321, in run_forever
+    super().run_forever()
+  File "C:\Python311\Lib\asyncio\base_events.py", line 604, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x00000198E3AD3240>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Python311\Lib\asyncio\base_events.py", line 1909, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x00000198E3A74180>
+    └ <Handle Task.task_wakeup(<Future finished result=None>)>
+  File "C:\Python311\Lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup(<Future finished result=None>)>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup(<Future finished result=None>)>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup(<Future finished result=None>)>
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\handler.py", line 117, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+                     │           │        │       └ {}
+                     │           │        └ (<Update {"update_id": 402101543, "message": {"message_id": 203, "from": {"id": 1393876641, "is_bot": false, "first_name": "В...
+                     │           └ <bound method Dispatcher.process_update of <aiogram.dispatcher.dispatcher.Dispatcher object at 0x00000198E5741410>>
+                     └ Handler.HandlerObj(handler=<bound method Dispatcher.process_update of <aiogram.dispatcher.dispatcher.Dispatcher object at 0x0...
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 256, in process_update
+    return await self.message_handlers.notify(update.message)
+                 │    │                │      │      └ <aiogram.types.fields.Field object at 0x00000198E49446D0>
+                 │    │                │      └ <Update {"update_id": 402101543, "message": {"message_id": 203, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вя...
+                 │    │                └ <function Handler.notify at 0x00000198E547CE00>
+                 │    └ <aiogram.dispatcher.handler.Handler object at 0x00000198E534A610>
+                 └ <aiogram.dispatcher.dispatcher.Dispatcher object at 0x00000198E5741410>
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\venv\Lib\site-packages\aiogram\dispatcher\handler.py", line 117, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+                     │           │        │       └ {'state': <aiogram.dispatcher.storage.FSMContext object at 0x00000198FE417E50>}
+                     │           │        └ (<Message {"message_id": 203, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вячеслав", "last_name": "Капралов", ...
+                     │           └ <function coin_info_ma at 0x00000198FE16ADE0>
+                     └ Handler.HandlerObj(handler=<function coin_info_ma at 0x00000198FE16ADE0>, spec=FullArgSpec(args=['message', 'state'], varargs...
+
+> File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\telegram_api\handlers\command_search.py", line 89, in coin_info_ma
+    await coin_signal(message, data)
+          │           │        └ <aiogram.dispatcher.storage.FSMContextProxy object at 0x00000198FE4172D0>
+          │           └ <Message {"message_id": 203, "from": {"id": 1393876641, "is_bot": false, "first_name": "Вячеслав", "last_name": "Капралов", "...
+          └ <function coin_signal at 0x00000198FE16B1A0>
+
+  File "C:\Users\Slava\PycharmProjects\KVO_EMA_Binance_bot\telegram_api\handlers\command_search.py", line 155, in coin_signal
+    flag, position = action_choice(
+                     └ <function action_choice at 0x00000198E5D837E0>
+
+TypeError: cannot unpack non-iterable NoneType object
+2023-07-04T11:35:18.611213+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:35:47.296580+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:116 - Интервал: 300 сек. 
+2023-07-04T11:35:47.297626+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:121 - Поиск сигнала 2023-07-04 11:35:47.297626
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:40:00.299619+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:121 - Поиск сигнала 2023-07-04 11:40:00.299619
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:40:00.300139+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:130 - Отправка запроса на сервер. 
+2023-07-04T11:40:01.817345+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:135 - Получен сигнал: None 
+2023-07-04T11:40:01.818588+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:173 - Ожидаем закрытия периода 5m. 
+2023-07-04T11:42:11.531482+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:42:32.633409+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:98 - positions=({'symbol': 'LTCUSDT', 'initialMargin': '5.35300000', 'maintMargin': '0.02676500', 'unrealizedProfit': '-0.01700000', 'positionInitialMargin': '5.35300000', 'openOrderInitialMargin': '0', 'leverage': '1', 'isolated': True, 'entryPrice': '107.4', 'maxNotional': '5.0E7', 'positionSide': 'LONG', 'positionAmt': '0.050', 'notional': '5.35300000', 'isolatedWallet': '5.36892600', 'updateTime': 1688459530938, 'bidNotional': '0', 'askNotional': '0'},), type=<class 'tuple'> 
+2023-07-04T11:42:32.782882+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:118 - Интервал: 300 сек. 
+2023-07-04T11:42:32.783881+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 11:42:32.783881
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:43:11.287674+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T11:43:27.016782+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:98 - positions={'symbol': 'LTCUSDT', 'initialMargin': '5.35200000', 'maintMargin': '0.02676000', 'unrealizedProfit': '-0.01800000', 'positionInitialMargin': '5.35200000', 'openOrderInitialMargin': '0', 'leverage': '1', 'isolated': True, 'entryPrice': '107.4', 'maxNotional': '5.0E7', 'positionSide': 'LONG', 'positionAmt': '0.050', 'notional': '5.35200000', 'isolatedWallet': '5.36892600', 'updateTime': 1688459530938, 'bidNotional': '0', 'askNotional': '0'} 
+2023-07-04T11:43:27.165810+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:118 - Интервал: 300 сек. 
+2023-07-04T11:43:27.166842+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 11:43:27.166842
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:45:00.170226+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 11:45:00.170226
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:45:00.170226+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T11:45:01.694118+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: None 
+2023-07-04T11:45:01.694118+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T11:50:01.691547+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T11:50:01.691547+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 11:50:01.691547
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T11:50:01.692611+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T11:50:03.239893+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: SHORT 
+2023-07-04T11:50:03.240892+0300 | INFO     | database.database:db_write:53 - Внесение в базу данных:
+('2023-07-04 11:50:01', 1393876641, 'v_kapralov', 'FUTURES', 'LTCUSDT', '5m', 9, 14, 'SHORT') 
+2023-07-04T11:50:14.110204+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T11:55:14.120008+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T11:55:14.120008+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 11:55:14.120008
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:00:00.132223+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 12:00:00.132223
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:00:00.132223+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T12:00:01.823484+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: None 
+2023-07-04T12:00:01.824487+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:05:01.836286+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T12:05:01.836286+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 12:05:01.836286
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:05:01.836286+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T12:05:03.356717+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: None 
+2023-07-04T12:05:03.356717+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:10:03.357885+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T12:10:03.357885+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 12:10:03.357885
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:10:03.357885+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T12:10:04.796090+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: None 
+2023-07-04T12:10:04.796090+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:15:04.808546+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T12:15:04.808546+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 12:15:04.808546
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:15:04.808546+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T12:15:06.290882+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: None 
+2023-07-04T12:15:06.290882+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:20:06.299187+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T12:20:06.299187+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 12:20:06.299187
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:20:06.299187+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T12:20:07.771429+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: None 
+2023-07-04T12:20:07.771429+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:25:07.769733+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T12:25:07.769733+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 12:25:07.769733
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:25:07.770746+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T12:25:09.387801+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: None 
+2023-07-04T12:25:09.387801+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:30:09.403487+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:177 - Закрытие периода 5m. 
+2023-07-04T12:30:09.403487+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:123 - Поиск сигнала 2023-07-04 12:30:09.403487
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:30:09.403487+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:132 - Отправка запроса на сервер. 
+2023-07-04T12:30:10.930329+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:137 - Получен сигнал: LONG 
+2023-07-04T12:30:10.930329+0300 | INFO     | database.database:db_write:53 - Внесение в базу данных:
+('2023-07-04 12:30:09', 1393876641, 'v_kapralov', 'FUTURES', 'LTCUSDT', '5m', 9, 14, 'LONG') 
+2023-07-04T12:30:11.506795+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:175 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:35:20.972076+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T12:35:42.778840+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:98 - Интервал: 300 сек. 
+2023-07-04T12:35:44.576830+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 12:35:44.576830
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:37:30.963035+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:98 - Интервал: 300 сек. 
+2023-07-04T12:37:32.630345+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 12:37:32.630345
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T12:40:02.951845+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 12:40:02.951845
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=28, period_fast=9, period_slow=14 
+2023-07-04T12:40:02.967153+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:131 - Отправка запроса на сервер. 
+2023-07-04T12:40:04.358607+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:136 - Получен сигнал: None 
+2023-07-04T12:40:04.358607+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:174 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:40:04.358607+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 12:40:04.358607
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T12:40:04.360128+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:131 - Отправка запроса на сервер. 
+2023-07-04T12:40:05.706696+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:136 - Получен сигнал: None 
+2023-07-04T12:40:05.706696+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:174 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:40:46.888209+0300 | INFO     | __main__:on_startup:13 - Start KVO_EMA_Binance_bot 
+2023-07-04T12:41:00.872659+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:98 - Интервал: 300 сек. 
+2023-07-04T12:41:02.699959+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 12:41:02.699959
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T12:45:01.150486+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 12:45:01.150486
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T12:45:01.151499+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:131 - Отправка запроса на сервер. 
+2023-07-04T12:45:02.575165+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:136 - Получен сигнал: None 
+2023-07-04T12:45:02.575670+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:174 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:50:02.594928+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:176 - Закрытие периода 5m. 
+2023-07-04T12:50:04.067746+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 12:50:04.067746
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T12:50:04.067746+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:131 - Отправка запроса на сервер. 
+2023-07-04T12:50:05.489758+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:136 - Получен сигнал: None 
+2023-07-04T12:50:05.489758+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:174 - Ожидаем закрытия периода 5m. 
+2023-07-04T12:55:05.481579+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:176 - Закрытие периода 5m. 
+2023-07-04T12:55:07.034872+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 12:55:07.034872
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T12:55:07.034872+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:131 - Отправка запроса на сервер. 
+2023-07-04T12:55:08.459565+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:136 - Получен сигнал: None 
+2023-07-04T12:55:08.459565+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:174 - Ожидаем закрытия периода 5m. 
+2023-07-04T13:00:08.454086+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:176 - Закрытие периода 5m. 
+2023-07-04T13:00:09.978105+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 13:00:09.978105
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T13:05:01.533540+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 13:05:01.533540
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T13:05:01.533540+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:131 - Отправка запроса на сервер. 
+2023-07-04T13:05:02.988689+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:136 - Получен сигнал: None 
+2023-07-04T13:05:02.988689+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:174 - Ожидаем закрытия периода 5m. 
+2023-07-04T13:10:02.988720+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:176 - Закрытие периода 5m. 
+2023-07-04T13:10:04.499926+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:122 - Поиск сигнала 2023-07-04 13:10:04.499926
+На symbol=LTCUSDT, exchange_type=FUTURES, time_frame=5m, percentage_deposit=4, trend_line=50, period_fast=9, period_slow=14 
+2023-07-04T13:10:04.499926+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:131 - Отправка запроса на сервер. 
+2023-07-04T13:10:05.886620+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:136 - Получен сигнал: None 
+2023-07-04T13:10:05.886620+0300 | INFO     | telegram_api.handlers.command_search:coin_signal:174 - Ожидаем закрытия периода 5m. 
