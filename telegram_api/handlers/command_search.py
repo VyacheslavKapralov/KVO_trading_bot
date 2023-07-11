@@ -210,7 +210,6 @@ def register_handlers_commands_signal(dp: Dispatcher):
     dp.register_message_handler(command_chancel, commands=['сброс', 'прервать', 'chancel'], state='*')
     dp.register_message_handler(command_chancel, Text(equals=['сброс', 'прервать', 'chancel'], ignore_case=True),
                                 state='*')
-    # dp.register_message_handler(ignore_messages_handler, state='*')
     dp.register_message_handler(command_search_signal, commands=['search'], state=None)
     dp.register_callback_query_handler(coin_info_exchange_type, state=CoinInfoStates.exchange_type)
     dp.register_callback_query_handler(coin_info_coin_name, state=CoinInfoStates.coin_name)
