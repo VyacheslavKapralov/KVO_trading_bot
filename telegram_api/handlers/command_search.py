@@ -155,7 +155,7 @@ async def coin_signal(message, state):
         waiting_time_seconds = get_waiting_time(now_time, data['time_frame'])
         seconds_passed = timeout_seconds - waiting_time_seconds
 
-        if 0 <= seconds_passed < 10 or waiting_time_seconds == 0:
+        if 0 <= seconds_passed < 15 or waiting_time_seconds == 0:
             logger.info(f'Отправка запроса на сервер.')
 
             signal = output_signals(exchange_type=data['exchange_type'], symbol=data['coin_name'],
