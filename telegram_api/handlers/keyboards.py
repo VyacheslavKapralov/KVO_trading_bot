@@ -5,12 +5,19 @@ from loguru import logger
 
 @logger.catch()
 def main_menu():
-    return ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton('/search')).add(KeyboardButton('/help'))\
+    return ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)\
+        .add(KeyboardButton('/search'))\
+        .add(KeyboardButton('/help'))\
         .add(KeyboardButton('/history'))
 
 
 @logger.catch()
-def search_menu_exchange():
+def menu_chancel():
+    return ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton('/chancel'))
+
+
+@logger.catch()
+def menu_exchange():
     return InlineKeyboardMarkup(row_width=2).row(
         InlineKeyboardButton(text='FUTURES', callback_data='FUTURES'),
         InlineKeyboardButton(text='SPOT', callback_data='SPOT')
@@ -18,7 +25,7 @@ def search_menu_exchange():
 
 
 @logger.catch()
-def search_menu_ticker():
+def menu_ticker():
     return InlineKeyboardMarkup(row_width=3).add(
         InlineKeyboardButton(text='BTCUSDT', callback_data='BTCUSDT'),
         InlineKeyboardButton(text='ETHUSDT', callback_data='ETHUSDT'),
@@ -34,7 +41,7 @@ def search_menu_ticker():
 
 
 @logger.catch()
-def search_menu_time_frame():
+def menu_time_frame():
     return InlineKeyboardMarkup(row_width=3).add(
         InlineKeyboardButton(text='1 minute', callback_data='1m'),
         InlineKeyboardButton(text='5 minutes', callback_data='5m'),
@@ -49,6 +56,21 @@ def search_menu_time_frame():
         InlineKeyboardButton(text='1 day', callback_data='1d'),
         InlineKeyboardButton(text='1 week', callback_data='1w'),
         # InlineKeyboardButton(text='1 month', callback_data='1M')
+    )
+
+
+@logger.catch()
+def menu_percentage():
+    return InlineKeyboardMarkup(row_width=3).add(
+        InlineKeyboardButton(text='2', callback_data='2'),
+        InlineKeyboardButton(text='3', callback_data='3'),
+        InlineKeyboardButton(text='5', callback_data='5'),
+        InlineKeyboardButton(text='10', callback_data='10'),
+        InlineKeyboardButton(text='20', callback_data='20'),
+        InlineKeyboardButton(text='30', callback_data='30'),
+        InlineKeyboardButton(text='50', callback_data='50'),
+        InlineKeyboardButton(text='75', callback_data='75'),
+        InlineKeyboardButton(text='100', callback_data='100'),
     )
 
 

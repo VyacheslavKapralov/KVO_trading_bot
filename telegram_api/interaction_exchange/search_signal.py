@@ -8,18 +8,17 @@ from binance_api.exchange_data.klines_without_apikey import get_klines_futures_w
 
 
 @logger.catch()
-def add_dataframe(exchange_type, symbol, time_frame, period_trend_line):
+def add_dataframe(exchange_type, symbol, time_frame, limit):
     if exchange_type == 'SPOT':
-        return get_klines_spot_without_api(symbol, time_frame, period_trend_line)
+        return get_klines_spot_without_api(symbol, time_frame, limit)
     elif exchange_type == 'FUTURES':
-        return get_klines_futures_without_api(symbol, time_frame, period_trend_line)
+        return get_klines_futures_without_api(symbol, time_frame, limit)
 
 
 @logger.catch()
-def adding_dataframe_ema(data, period_fast, period_slow, period_trend_line):
+def adding_dataframe_ema(data, period_fast, period_slow):
     data = get_dataframe_pandas(data)
     data = add_exponential_moving_average(data, period=period_fast)
-    data = add_exponential_moving_average(data, period=period_trend_line)
     data = add_moving_average(data, period=period_slow)
     return data
 
@@ -31,18 +30,15 @@ def add_position(data: pd.DataFrame, period_fast: int, period_slow: int):
 
 
 @logger.catch()
-def output_signals(exchange_type: str, symbol: str, timeframe: str, period_fast: int, period_slow: int,
-                   period_trend_line: int) -> str:
-    data = add_dataframe(exchange_type, symbol, timeframe, period_trend_line)
-    data = adding_dataframe_ema(data, period_fast, period_slow, period_trend_line)
+def output_signals(exchange_type: str, symbol: str, time_frame: str, period_fast: int, period_slow: int) -> str:
+    data = add_dataframe(exchange_type, symbol, time_frame, period_slow)
+    data = adding_dataframe_ema(data, period_fast, period_slow)
     data = add_position(data, period_fast, period_slow)
 
-    if data['position'][-2] == 'long' and data['position'][-1] == 'short' \
-            and data['Close'][-1] < data[f"EMA_{period_trend_line}"][-1]:
+    if data['position'][-2] == 'long' and data['position'][-1] == 'short': \
         return 'SHORT'
 
-    elif data['position'][-2] == 'short' and data['position'][-1] == 'long' \
-            and data['Close'][-1] > data[f"EMA_{period_trend_line}"][-1]:
+    elif data['position'][-2] == 'short' and data['position'][-1] == 'long': \
         return 'LONG'
 
 

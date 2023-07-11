@@ -14,8 +14,7 @@ def get_positions_futures():
                                           secret=binance_set.secret_key.get_secret_value())
     try:
         positions = connect_um_futures_client.account(recvWindow=6000)['positions']
-        not_null_positions = (position for position in positions if
-                              float(position['positionAmt']) != 0)
+        not_null_positions = (position for position in positions if float(position['positionAmt']) != 0)
         return not_null_positions
 
     except ClientError as error:

@@ -17,6 +17,4 @@ other_commands.register_handlers_commands(dp)
 command_search.register_handlers_commands_signal(dp)
 
 if __name__ == '__main__':
-    logger.info("Запуск main.py")
-
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
