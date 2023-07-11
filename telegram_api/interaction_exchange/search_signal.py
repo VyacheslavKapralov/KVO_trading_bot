@@ -35,10 +35,10 @@ def output_signals(exchange_type: str, symbol: str, time_frame: str, period_fast
     data = adding_dataframe_ema(data, period_fast, period_slow)
     data = add_position(data, period_fast, period_slow)
 
-    if data['position'][-2] == 'long' and data['position'][-1] == 'short': \
+    if data['position'][-2] == 'long' and data['position'][-1] == 'short':
         return 'SHORT'
 
-    elif data['position'][-2] == 'short' and data['position'][-1] == 'long': \
+    elif data['position'][-2] == 'short' and data['position'][-1] == 'long':
         return 'LONG'
 
 
