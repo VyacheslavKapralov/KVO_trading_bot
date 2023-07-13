@@ -1,14 +1,12 @@
 from aiogram.utils import executor
 from loguru import logger
 
-from database.database import create_database
 from logs.start_log import log_telegram_bot
 from telegram_api.connect_telegrambot import dp
 from telegram_api.handlers import other_commands, command_search
 
 
 async def on_startup(_):
-    create_database()
     log_telegram_bot()
     logger.info('Start KVO_EMA_Binance_bot')
 

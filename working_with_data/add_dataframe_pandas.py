@@ -3,7 +3,7 @@ from loguru import logger
 
 
 @logger.catch()
-def get_dataframe_pandas(data):
+def get_dataframe_pandas(data: list) -> pd.DataFrame:
     data_frame = pd.DataFrame(
         data,
         columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close_time', 'Quote_asset_volume',
@@ -18,7 +18,6 @@ def get_dataframe_pandas(data):
     data_frame = data_frame.set_index('Date')
     data_frame[['Open', 'High', 'Low', 'Close', 'Volume']] = \
         data_frame[['Open', 'High', 'Low', 'Close', 'Volume']].apply(pd.to_numeric)
-
     return data_frame
 
 

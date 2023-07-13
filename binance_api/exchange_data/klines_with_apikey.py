@@ -6,10 +6,9 @@ from settings import BinanceSettings
 
 
 @logger.catch()
-def historical_klines_futures(symbol, timeframe):
+def historical_klines_futures(symbol: str, timeframe: str) -> dict | str:
     try:
         binance_set = BinanceSettings()
-
         um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
                                       secret=binance_set.secret_key.get_secret_value())
         return um_futures_client.klines(symbol, timeframe)
@@ -23,10 +22,9 @@ def historical_klines_futures(symbol, timeframe):
 
 
 @logger.catch()
-def continuous_klines_futures(symbol: str, period: str):
+def continuous_klines_futures(symbol: str, period: str) -> dict | str:
     try:
         binance_set = BinanceSettings()
-
         um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
                                       secret=binance_set.secret_key.get_secret_value())
         return um_futures_client.continuous_klines(symbol, "PERPETUAL", period)

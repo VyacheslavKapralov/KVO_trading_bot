@@ -48,4 +48,3 @@ def connect_spot_client():
 
 if __name__ == '__main__':
     logger.info('Running connect_binance.py from module binance_api')
-    print(connect_um_futures_client.commission_rate(symbol="BTCUSDT", recvWindow=6000))

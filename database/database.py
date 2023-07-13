@@ -1,3 +1,4 @@
+import datetime
 import sqlite3
 from loguru import logger
 
@@ -10,35 +11,32 @@ def connect_database():
 
 
 @logger.catch()
-def create_database():
+def create_database(name_tabl: str):
     """Подключение и создание таблицы"""
 
     connect = connect_database()
-    # Создание таблицы
     cursor = connect.cursor()
-    cursor.execute("""CREATE TABLE IF NOT EXISTS binance_signal (
+    cursor.execute(f"""CREATE TABLE IF NOT EXISTS {name_tabl} (
                         date_time TEXT,
-                        client_id INTEGER, 
                         user_name TEXT,
                         exchange TEXT,
-                        ticker TEXT,
                         period TEXT,
                         EMA INTEGER,
                         MA INTEGER,
-                        signal TEXT
+                        signal TEXT,
+                        position TEXT
                         )""")
-    # Сохранение изменений
     connect.commit()
     cursor.close()
-    # Закрытие подключения
     connect.close()
 
 
 @logger.catch()
-def db_write(date_time, client_id: int, user_name: str, exchange: str, ticker: str, period: str, ema: int, ma: int,
-             signal: str):
+def db_write(date_time: str, user_name: str, exchange: str, ticker: str, period: str, ema: int, ma: int,
+             signal: str, position: str):
     """Внесение данных в базу.
 
+    :param position:
     :param signal:
     :param ma:
     :param ema:
@@ -47,39 +45,34 @@ def db_write(date_time, client_id: int, user_name: str, exchange: str, ticker: s
     :param exchange:
     :param user_name:
     :param date_time:
-    :param client_id: (int) ID пользователя
     """
-
-    logger.info(f"Внесение в базу данных:\n"
-                f"{date_time, client_id, user_name, exchange, ticker, period, ema, ma, signal}")
 
     connect = connect_database()
     cursor = connect.cursor()
     cursor.execute(
-        'INSERT INTO binance_signal '
+        f'INSERT INTO {ticker} '
         '('
         'date_time, '
-        'client_id, '
         'user_name, '
         'exchange, '
-        'ticker, '
         'period, '
         'EMA, '
         'MA, '
-        'signal'
+        'signal,'
+        'position'
         ') '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        (date_time, client_id, user_name, exchange, ticker, period, ema, ma, signal)
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        (date_time, user_name, exchange, period, ema, ma, signal, position)
     )
     connect.commit()
     connect.close()
 
 
 @logger.catch()
-async def db_read():
+async def db_read(name_tabl: str):
     connect = connect_database()
     cursor = connect.cursor()
-    return cursor.execute('SELECT * FROM binance_signal').fetchall()
+    return cursor.execute(f'SELECT * FROM {name_tabl}').fetchall()
 
 
 if __name__ == '__main__':

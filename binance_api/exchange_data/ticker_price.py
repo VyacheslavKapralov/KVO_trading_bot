@@ -6,10 +6,9 @@ from settings import BinanceSettings
 
 
 @logger.catch()
-def ticker_price_futures(symbol):
+def ticker_price_futures(symbol: str) -> dict | str:
     try:
         binance_set = BinanceSettings()
-
         connect_um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
                                               secret=binance_set.secret_key.get_secret_value())
         return connect_um_futures_client.ticker_price(symbol)

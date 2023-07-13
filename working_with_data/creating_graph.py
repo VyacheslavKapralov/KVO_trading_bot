@@ -35,15 +35,12 @@ def add_price_chart_line_indicator(data: pd.DataFrame, indicators: dict, addplot
         '#AA13E5',
         '#E514C8'
     )
-
     count = 1
     for key, val in indicators.items():
         if count > 10:
             break
-
         addplot.append(mpf.make_addplot(data[f"{key}_{val}"], type='line', color=colors[1], panel=0))
         count += 2
-
     return addplot
 
 

@@ -5,7 +5,7 @@ from loguru import logger
 
 
 @logger.catch()
-def add_moving_average(data: pd.DataFrame, period: int):
+def add_moving_average(data: pd.DataFrame, period: int) -> pd.DataFrame:
     data[f'MA_{period}'] = round(data['Close'].rolling(window=period).mean(), 2)
     return data
 
@@ -17,13 +17,13 @@ def add_exponential_moving_average(data: pd.DataFrame, period: int) -> pd.DataFr
 
 
 @logger.catch()
-def add_average_true_range_period(data, period):
+def add_average_true_range_period(data: pd.DataFrame, period: int) -> pd.DataFrame:
     data[f'ATR_{period}'] = round(ta.atr(high=data['High'], low=data['Low'], close=data['Close'], length=period), 2)
     return data
 
 
 @logger.catch()
-def add_MACD(data: pd.DataFrame, fast: int, slow: int, signal: int):
+def add_MACD(data: pd.DataFrame, fast: int, slow: int, signal: int) -> pd.DataFrame:
     macd = ta.macd(data['Close'], fast=fast, slow=slow, signal=signal)
     data['MACD'] = round(macd[f'MACD_{fast}_{slow}_{signal}'], 2)
     data['MACD_signal'] = round(macd[f'MACDs_{fast}_{slow}_{signal}'], 2)
@@ -31,7 +31,7 @@ def add_MACD(data: pd.DataFrame, fast: int, slow: int, signal: int):
 
 
 @logger.catch()
-def add_stochastic(data: pd.DataFrame, fast: int, slow: int, smooth_k=1):
+def add_stochastic(data: pd.DataFrame, fast: int, slow: int, smooth_k: int = 1) -> pd.DataFrame:
     stoch = ta.stoch(data['High'], data['Low'], data['Close'], d=slow, k=fast, smooth_k=smooth_k)
     data['stoch_fast'] = round(stoch[f'STOCHk_{fast}_{slow}_{smooth_k}'], 2)
     data['stoch_slow'] = round(stoch[f'STOCHd_{fast}_{slow}_{smooth_k}'], 2)

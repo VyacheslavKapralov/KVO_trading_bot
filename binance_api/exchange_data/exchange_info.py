@@ -6,13 +6,11 @@ from settings import BinanceSettings
 
 
 @logger.catch()
-def exchange_info_futures():
+def exchange_info_futures() -> dict | str:
     try:
         binance_set = BinanceSettings()
-
         connect_um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
                                               secret=binance_set.secret_key.get_secret_value())
-
         return connect_um_futures_client.exchange_info()
     except ClientError as error:
         logger.info(

@@ -6,14 +6,12 @@ from settings import BinanceSettings
 
 
 @logger.catch()
-def commission_rate_futures(symbol: str):
+def commission_rate_futures(symbol: str) -> dict | str:
     try:
         binance_set = BinanceSettings()
-
         connect_um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
                                               secret=binance_set.secret_key.get_secret_value())
         return connect_um_futures_client.commission_rate(symbol=symbol, recvWindow=6000)
-
     except ClientError as error:
         logger.info(
             "Found error. status: {}, error code: {}, error message: {}".format(

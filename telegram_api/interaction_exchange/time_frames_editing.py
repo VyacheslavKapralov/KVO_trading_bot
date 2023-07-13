@@ -3,7 +3,7 @@ from loguru import logger
 
 
 @logger.catch()
-def get_timeout_response(time_frame: str):
+def get_timeout_response(time_frame: str) -> int:
     time_frame_dict = {'1m': 60, '3m': 180, '5m': 300, '15m': 900, '30m': 1800, '1h': 3600, '2h': 7200, '4h': 14400,
                        '6h': 21600, '8h': 28800, '12h': 43200, '1d': 86400, '3d': 259200, '1w': 604800, '1M': 2592000}
 
@@ -11,7 +11,7 @@ def get_timeout_response(time_frame: str):
 
 
 @logger.catch()
-def get_waiting_time(now, time_frame):
+def get_waiting_time(now, time_frame: str) -> int:
 
     number_period = int(time_frame[:-1])
 

@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from loguru import logger
-from pydantic import BaseSettings, SecretStr, StrictStr
+from pydantic import BaseSettings, SecretStr
 
 load_dotenv()
 
