@@ -135,14 +135,14 @@ async def coin_signal(message, state):
                          f"MA: {data['ma']}",
                          reply_markup=menu_chancel())
     while not INTERRUPT:
-        position = tuple(all_positions(data['coin_name'], data['exchange_type']))
-        if isinstance(position, str):
+        positions = all_positions(data['coin_name'], data['exchange_type'])
+        if isinstance(positions, str):
             await message.answer(f"Не удалось получить информацию по открытым позициям на инструменте "
                                  f"{data['coin_name']}\nОтвет сервера: {position}")
             break
-        elif len(position) > 1:
+        if len(tuple(positions)) > 1:
             await message.answer(f"На данном активе уже есть две противоположные позиции:\n"
-                                 f"{position}\n"
+                                 f"{tuple(positions)}\n"
                                  f"Скорректируйте позиции на инструменте, чтоб бот мог на нем работать. "
                                  f"Можно оставить только одну позицию.")
             break
@@ -159,12 +159,12 @@ async def coin_signal(message, state):
                                      f"тайм-фрейм: {data['time_frame']}\n"
                                      f"Скользящие средние:\n"
                                      f"Быстрая - {data['ema']}, медленная - {data['ma']}")
-                success, position = await action_choice(
+                success, position = action_choice(
                     coin=data['coin_name'],
                     exchange_type=data['exchange_type'],
                     position_side=signal,
                     percentage_deposit=float(data['percentage_deposit']),
-                    position=position
+                    position=tuple(positions)
                 )
                 if success:
                     await message.answer(f"Размещен лимитный ордер:\n"
@@ -179,7 +179,8 @@ async def coin_signal(message, state):
                         ma=data['ma'],
                         signal=signal,
                         position=f"Price: {position.get('price')}; quantity: {position.get('origQty')}; "
-                                 f"type: {position.get('type')}"
+                                 f"type: {position.get('type')}; side: {position.get('side')}; "
+                                 f"stop_price: {position.get('stopPrice')}"
                     )
                 else:
                     await message.answer(position)
