@@ -19,20 +19,21 @@ def close_position(coin: str, exchange_type: str, position_side: str, quantity: 
 
 @logger.catch()
 def close_position_futures(coin: str, position_side: str, quantity: float) -> dict | str:
-    price = ticker_price_futures(coin)
-    if isinstance(price, str):
-        return f"Не удалось получить цену инструмента {coin}: {price}"
+    ticker_price = ticker_price_futures(coin)
+    if isinstance(ticker_price, str):
+        logger.info(f"Не удалось получить цену инструмента {coin}: {ticker_price}")
+        return f"Не удалось получить цену инструмента {coin}: {ticker_price}"
     exchange_info = get_exchange_info_coin_future(coin)
     if isinstance(exchange_info, str):
         return f"Не удалось получить данные по инструменту {coin}: {exchange_info}"
-    tick_size = float(exchange_info["filters"][0].get("tickSize"))
-    price = float(price['price'])
     if position_side == "LONG":
-        side = "SELL"
-        price += round(price * 0.0002 / tick_size * tick_size)
-    else:
         side = "BUY"
-        price -= round(price * 0.0002 / tick_size * tick_size)
+        price = float(ticker_price['price']) * 0.9998
+    else:
+        side = "SELL"
+        price = float(ticker_price['price']) * 1.0002
+    rounding_accuracy = get_rounding_accuracy(exchange_info["filters"][0].get("tickSize"))
+    price_round = round(price, rounding_accuracy)
     return new_order_futures(
         symbol=coin,
         side=side,
@@ -40,7 +41,7 @@ def close_position_futures(coin: str, position_side: str, quantity: float) -> di
         type_position="LIMIT",
         quantity=quantity,
         time_in_force="GTC",
-        price=price
+        price=price_round
     )
 
 
@@ -48,10 +49,19 @@ def close_position_futures(coin: str, position_side: str, quantity: float) -> di
 def get_exchange_info_coin_future(coin: str) -> str | dict | None:
     exchange_info = exchange_info_futures()
     if isinstance(exchange_info, str):
+        logger.info(f"Не удалось получить информацию биржи по инструментам: {exchange_info}")
         return exchange_info
     for symbol in exchange_info["symbols"]:
         if symbol["symbol"] == coin:
             return symbol
+
+
+@logger.catch()
+def get_rounding_accuracy(tick_size: str) -> int:
+    if tick_size.find('.') > 0:
+        return tick_size.split('.')[-1].find('1') + 1
+    else:
+        return 0
 
 
 if __name__ == '__main__':

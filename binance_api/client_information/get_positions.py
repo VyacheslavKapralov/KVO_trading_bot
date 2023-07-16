@@ -14,8 +14,7 @@ def get_positions_futures() -> Generator | str:
                                           secret=binance_set.secret_key.get_secret_value())
     try:
         positions = connect_um_futures_client.account(recvWindow=10000)['positions']
-        not_null_positions = (position for position in positions if float(position['positionAmt']) != 0)
-        return not_null_positions
+        return (position for position in positions if float(position['positionAmt']) != 0)
     except ClientError as error:
         logger.info(
             "Found error. status: {}, error code: {}, error message: {}".format(
@@ -30,6 +29,7 @@ def all_positions(coin: str, exchange_type: str) -> Generator | str:
     if exchange_type == "FUTURES":
         positions = get_positions_futures()
         if isinstance(positions, str):
+            logger.info(f"Не удалось получить информацию по открытым позициям на инструменте {coin}: {positions}")
             return positions
         elif isinstance(positions, Generator):
             return (val for val in positions if val.get('symbol') == coin)
