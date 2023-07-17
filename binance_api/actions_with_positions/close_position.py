@@ -1,8 +1,7 @@
 from loguru import logger
-
-from binance_api.exchange_data.exchange_info import exchange_info_futures
-from binance_api.exchange_data.ticker_price import ticker_price_futures
-from binance_api.trade.new_order import new_order_futures, new_order_spot
+from binance_api.exchange_data.exchange_info import exchange_info_um_futures
+from binance_api.exchange_data.ticker_price import ticker_price_um_futures
+from binance_api.trade.new_order import new_order_um_futures, new_order_spot
 
 
 @logger.catch()
@@ -13,7 +12,7 @@ def close_position(coin: str, exchange_type: str, position_side: str, quantity: 
 
 @logger.catch()
 def close_position_futures(coin: str, position_side: str, quantity: float) -> dict | str:
-    ticker_price = ticker_price_futures(coin)
+    ticker_price = ticker_price_um_futures(coin)
     if isinstance(ticker_price, str):
         logger.info(f"Не удалось получить цену инструмента {coin}: {ticker_price}")
         return f"Не удалось получить цену инструмента {coin}: {ticker_price}"
@@ -28,7 +27,7 @@ def close_position_futures(coin: str, position_side: str, quantity: float) -> di
         price = float(ticker_price['price']) * 1.0002
     rounding_accuracy = get_rounding_accuracy(exchange_info["filters"][0].get("tickSize"))
     price_round = round(price, rounding_accuracy)
-    return new_order_futures(
+    return new_order_um_futures(
         symbol=coin,
         side=side,
         position_side=position_side,
@@ -41,7 +40,7 @@ def close_position_futures(coin: str, position_side: str, quantity: float) -> di
 
 @logger.catch()
 def get_exchange_info_coin_future(coin: str) -> str | dict | None:
-    exchange_info = exchange_info_futures()
+    exchange_info = exchange_info_um_futures()
     if isinstance(exchange_info, str):
         logger.info(f"Не удалось получить информацию биржи по инструментам: {exchange_info}")
         return exchange_info

@@ -1,10 +1,9 @@
 from loguru import logger
-
-from binance_api.client_information.get_balance import get_balance_futures
-from binance_api.exchange_data.exchange_info import exchange_info_futures
-from binance_api.exchange_data.ticker_price import ticker_price_futures
-from binance_api.trade.commission_rate import commission_rate_futures
-from binance_api.trade.new_order import new_order_futures
+from binance_api.client_information.get_balance import get_balance_um_futures
+from binance_api.exchange_data.exchange_info import exchange_info_um_futures
+from binance_api.exchange_data.ticker_price import ticker_price_um_futures
+from binance_api.trade.commission_rate import commission_rate_um_futures
+from binance_api.trade.new_order import new_order_um_futures
 
 
 @logger.catch()
@@ -23,11 +22,11 @@ def open_position_futures(coin: str, position_side: str, percentage_deposit: flo
     balance_client = get_free_balance_coin_futures(coin_info["quoteAsset"])
     if isinstance(balance_client, str):
         return f"Не удалось получить баланс клиента: {balance_client}"
-    ticker_price = ticker_price_futures(coin)
+    ticker_price = ticker_price_um_futures(coin)
     if isinstance(ticker_price, str) or not ticker_price:
         logger.info(f"Не удалось получить цену инструмента {coin}: {ticker_price}")
         return f"Не удалось получить цену инструмента {coin}: {ticker_price}"
-    fee = float(commission_rate_futures(coin)['takerCommissionRate'])
+    fee = float(commission_rate_um_futures(coin)['takerCommissionRate'])
     if isinstance(fee, str):
         logger.info(f"Не удалось получить комиссию по инструменту {coin}: {fee}")
         return f"Не удалось получить комиссию по инструменту {coin}: {fee}"
@@ -41,7 +40,7 @@ def open_position_futures(coin: str, position_side: str, percentage_deposit: flo
     price_round = round(price, rounding_accuracy)
     volume_max = get_volume_max(balance_client, coin_info["filters"][1].get("minQty"), percentage_deposit, price)
     if float(coin_info["filters"][1].get("minQty")) <= volume_max + volume_max * fee:
-        return new_order_futures(
+        return new_order_um_futures(
             symbol=coin,
             side=side,
             position_side=position_side,
@@ -58,7 +57,7 @@ def open_position_futures(coin: str, position_side: str, percentage_deposit: flo
 
 @logger.catch()
 def get_exchange_info_coin_futures(coin: str) -> str | dict | None:
-    exchange_info = exchange_info_futures()
+    exchange_info = exchange_info_um_futures()
     if isinstance(exchange_info, str):
         logger.info(f"Не удалось получить информацию биржи по инструментам: {exchange_info}")
         return exchange_info
@@ -69,7 +68,7 @@ def get_exchange_info_coin_futures(coin: str) -> str | dict | None:
 
 @logger.catch()
 def get_free_balance_coin_futures(asset_name: str) -> float | str:
-    balances = get_balance_futures()
+    balances = get_balance_um_futures()
     if isinstance(balances, str):
         logger.info(f"Не удалось получить баланс клиента: {balances}")
         return balances

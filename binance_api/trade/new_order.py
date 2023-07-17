@@ -1,22 +1,16 @@
 import time
-
 from loguru import logger
 from binance.error import ClientError
-from binance.spot import Spot
-from binance.um_futures import UMFutures
-from settings import BinanceSettings
+from binance_api.connect_binance import connect_um_futures_client, connect_spot_client
 
 
 @logger.catch()
-def new_order_futures(symbol: str, side: str, position_side: str, type_position: str, quantity: float,
-                      time_in_force: str, price: float) -> dict | str:
+def new_order_um_futures(symbol: str, side: str, position_side: str, type_position: str, quantity: float,
+                         time_in_force: str, price: float) -> dict | str:
     count = 0
     while True:
         try:
-            binance_set = BinanceSettings()
-            connect_um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
-                                                  secret=binance_set.secret_key.get_secret_value())
-            return connect_um_futures_client.new_order(
+            return connect_um_futures_client().new_order(
                 symbol=symbol,
                 side=side,
                 positionSide=position_side,
@@ -26,16 +20,13 @@ def new_order_futures(symbol: str, side: str, position_side: str, type_position:
                 price=price,
             )
         except ClientError as error:
-            logger.info(
-                "Found error. status: {}, error code: {}, error message: {}".format(
-                    error.status_code, error.error_code, error.error_message
-                )
-            )
+            logger.info(f"Found error status: {error.status_code}, error code: {error.error_code}, "
+                        f"error message: {error.error_message}")
             return error.error_message
         except Exception as e:
-            logger.info(f"Не удается получить данные от сервера. Ошибка: {e}")
+            logger.info(f"Не удается создать ордер. Ошибка: {e}")
             if count == 3:
-                return f"Не удалось получить данные от сервера. Ошибка: {e}"
+                return f"Не удалось создать ордер. Ошибка: {e}"
             count += 1
             time.sleep(2)
 
@@ -46,10 +37,7 @@ def new_order_spot(symbol: str, side: str, type_position: str, quantity: float, 
     count = 0
     while True:
         try:
-            binance_set = BinanceSettings()
-            connect_spot_client = Spot(key=binance_set.api_key.get_secret_value(),
-                                       secret=binance_set.secret_key.get_secret_value())
-            return connect_spot_client.new_order(
+            return connect_spot_client().new_order(
                 symbol=symbol,
                 side=side,
                 type=type_position,
@@ -58,16 +46,13 @@ def new_order_spot(symbol: str, side: str, type_position: str, quantity: float, 
                 price=price
             )
         except ClientError as error:
-            logger.info(
-                "Found error. status: {}, error code: {}, error message: {}".format(
-                    error.status_code, error.error_code, error.error_message
-                )
-            )
+            logger.info(f"Found error status: {error.status_code}, error code: {error.error_code}, "
+                        f"error message: {error.error_message}")
             return error.error_message
         except Exception as e:
-            logger.info(f"Не удается получить данные от сервера. Ошибка: {e}")
+            logger.info(f"Не удается создать ордер. Ошибка: {e}")
             if count == 3:
-                return f"Не удалось получить данные от сервера. Ошибка: {e}"
+                return f"Не удалось создать ордер. Ошибка: {e}"
             count += 1
             time.sleep(2)
 

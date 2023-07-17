@@ -1,5 +1,4 @@
 from loguru import logger
-
 from binance_api.actions_with_positions.close_position import close_position
 from binance_api.actions_with_positions.open_position import open_position
 

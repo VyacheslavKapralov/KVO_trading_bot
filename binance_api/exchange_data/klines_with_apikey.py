@@ -1,39 +1,25 @@
 from loguru import logger
 from binance.error import ClientError
-from binance.um_futures import UMFutures
-
-from settings import BinanceSettings
+from binance_api.connect_binance import connect_um_futures_client
 
 
 @logger.catch()
-def historical_klines_futures(symbol: str, timeframe: str) -> dict | str:
+def historical_klines_um_futures(symbol: str, timeframe: str) -> dict | str:
     try:
-        binance_set = BinanceSettings()
-        um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
-                                      secret=binance_set.secret_key.get_secret_value())
-        return um_futures_client.klines(symbol, timeframe)
+        return connect_um_futures_client().klines(symbol, timeframe)
     except ClientError as error:
-        logger.info(
-            "Found error. status: {}, error code: {}, error message: {}".format(
-                error.status_code, error.error_code, error.error_message
-            )
-        )
+        logger.info(f"Found error status: {error.status_code}, error code: {error.error_code}, "
+                    f"error message: {error.error_message}")
         return error.error_message
 
 
 @logger.catch()
-def continuous_klines_futures(symbol: str, period: str) -> dict | str:
+def continuous_klines_um_futures(symbol: str, period: str) -> dict | str:
     try:
-        binance_set = BinanceSettings()
-        um_futures_client = UMFutures(key=binance_set.api_key.get_secret_value(),
-                                      secret=binance_set.secret_key.get_secret_value())
-        return um_futures_client.continuous_klines(symbol, "PERPETUAL", period)
+        return connect_um_futures_client().continuous_klines(symbol, "PERPETUAL", period)
     except ClientError as error:
-        logger.info(
-            "Found error. status: {}, error code: {}, error message: {}".format(
-                error.status_code, error.error_code, error.error_message
-            )
-        )
+        logger.info(f"Found error status: {error.status_code}, error code: {error.error_code}, "
+                    f"error message: {error.error_message}")
         return error.error_message
 
 
