@@ -5,9 +5,9 @@ from binance_api.actions_with_positions.open_position import open_position
 
 
 @logger.catch()
-def action_choice(coin: str, exchange_type: str, position_side: str, percentage_deposit: float,
-                  position: tuple) -> tuple[bool, dict | str]:
-    if not position or position[0].get('positionSide') == position_side:
+async def action_choice(coin: str, exchange_type: str, position_side: str, percentage_deposit: float,
+                        position: tuple) -> tuple[bool, dict | str]:
+    if not position:
         open_pos = open_position(coin, exchange_type, position_side, percentage_deposit)
         if isinstance(open_pos, dict):
             logger.info(f"Открытие позиции: {open_pos}")
