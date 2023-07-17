@@ -16,13 +16,13 @@ def get_klines_futures_without_api(symbol: str, timeframe: str, limit: int) -> l
                 return response.json()
 
             except requests.exceptions.RequestException as e:
-                return f"Не удалось получить данные от сервера. Ошибка: {e}"
+                return f"Не удалось получить исторические цены от сервера. Ошибка: {e}"
 
             except Exception as e:
                 if count == 3:
-                    return f"Не удалось получить данные от сервера. Ошибка: {e}"
+                    return f"Не удалось получить исторические цены от сервера. Ошибка: {e}"
 
-                logger.info(f"Не удается получить данные от сервера. Ошибка: {e}")
+                logger.info(f"Не удается получить исторические цены от сервера. Ошибка: {e}")
                 count += 1
                 time.sleep(2)
 
@@ -39,11 +39,11 @@ def get_klines_spot_without_api(symbol: str, timeframe: str, limit: int) -> list
                 response.raise_for_status()
                 return response.json()
             except requests.exceptions.RequestException as e:
-                return f"Не удалось получить данные от сервера. Ошибка: {e}"
+                return f"Не удалось получить исторические цены от сервера. Ошибка: {e}"
             except Exception as e:
-                logger.info(f"Не удается получить данные от сервера. Ошибка: {e}")
+                logger.info(f"Не удается получить исторические цены от сервера. Ошибка: {e}")
                 if count == 3:
-                    return f"Не удалось получить данные от сервера. Ошибка: {e}"
+                    return f"Не удалось получить исторические цены от сервера. Ошибка: {e}"
                 count += 1
                 time.sleep(2)
 

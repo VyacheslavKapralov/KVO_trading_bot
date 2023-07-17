@@ -6,12 +6,6 @@ from binance_api.trade.new_order import new_order_futures, new_order_spot
 
 
 @logger.catch()
-def price_calculation(coin: str, exchange_type: str) -> dict | None:
-    if exchange_type == "FUTURES":
-        return ticker_price_futures(coin)
-
-
-@logger.catch()
 def close_position(coin: str, exchange_type: str, position_side: str, quantity: float) -> dict | str:
     if exchange_type == "FUTURES":
         return close_position_futures(coin, position_side, quantity)
@@ -60,8 +54,7 @@ def get_exchange_info_coin_future(coin: str) -> str | dict | None:
 def get_rounding_accuracy(tick_size: str) -> int:
     if tick_size.find('.') > 0:
         return tick_size.split('.')[-1].find('1') + 1
-    else:
-        return 0
+    return
 
 
 if __name__ == '__main__':

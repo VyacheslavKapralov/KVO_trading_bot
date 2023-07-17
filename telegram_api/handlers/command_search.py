@@ -7,14 +7,14 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 
-from binance_api.client_information.get_positions import all_positions
+from binance_api.client_information.get_positions import get_positions_coin
+from binance_api.interaction_exchange.search_signal import output_signals
+from binance_api.interaction_exchange.time_frames_editing import get_timeout_response, get_waiting_time
 from database.database import db_write, create_database
 from binance_api.strategy import action_choice
 from telegram_api.handlers.keyboards import menu_exchange, menu_ticker, menu_time_frame, menu_percentage, menu_chancel
 from telegram_api.handlers.other_commands import command_start
 from telegram_api.handlers.state_machine import CoinInfoStates
-from telegram_api.interaction_exchange.search_signal import output_signals
-from telegram_api.interaction_exchange.time_frames_editing import get_timeout_response, get_waiting_time
 
 INTERRUPT = False
 IGNORE_MESSAGE = False
@@ -135,14 +135,13 @@ async def coin_signal(message, state):
                          f"MA: {data['ma']}",
                          reply_markup=menu_chancel())
     while not INTERRUPT:
-        position = tuple(all_positions(data['coin_name'], data['exchange_type']))
-        if isinstance(position, str):
-            await message.answer(f"Не удалось получить информацию по открытым позициям на инструменте "
-                                 f"{data['coin_name']}\nОтвет сервера: {position}")
+        position = get_positions_coin(data['coin_name'], data['exchange_type'])
+        if isinstance(tuple(position), str):
+            await message.answer(position)
             break
-        elif len(position) > 1:
+        elif len(tuple(position)) > 1:
             await message.answer(f"На данном активе уже есть две противоположные позиции:\n"
-                                 f"{position}\n"
+                                 f"{tuple(position)}\n"
                                  f"Скорректируйте позиции на инструменте, чтоб бот мог на нем работать. "
                                  f"Можно оставить только одну позицию.")
             break
@@ -154,17 +153,20 @@ async def coin_signal(message, state):
             signal = output_signals(exchange_type=data['exchange_type'], symbol=data['coin_name'],
                                     time_frame=data['time_frame'], period_fast=data['ema'], period_slow=data['ma'])
             logger.info(f'Получен сигнал: {signal}')
+            if isinstance(signal, str) and signal != "LONG" or signal != "SHORT":
+                await message.answer(signal)
+                continue
             if signal:
                 await message.answer(f"Получен сигнал {signal} на инструменте {data['coin_name']}, "
                                      f"тайм-фрейм: {data['time_frame']}\n"
                                      f"Скользящие средние:\n"
                                      f"Быстрая - {data['ema']}, медленная - {data['ma']}")
-                success, position = await action_choice(
+                success, position = action_choice(
                     coin=data['coin_name'],
                     exchange_type=data['exchange_type'],
                     position_side=signal,
                     percentage_deposit=float(data['percentage_deposit']),
-                    position=position
+                    position=tuple(position)
                 )
                 if success:
                     await message.answer(f"Размещен лимитный ордер:\n"
@@ -179,7 +181,7 @@ async def coin_signal(message, state):
                         ma=data['ma'],
                         signal=signal,
                         position=f"Price: {position.get('price')}; quantity: {position.get('origQty')}; "
-                                 f"type: {position.get('type')}"
+                                 f"type: {position.get('type')}; stop_price: {position.get('stopPrice')}"
                     )
                 else:
                     await message.answer(position)

@@ -17,27 +17,30 @@ def open_position(coin: str, exchange_type: str, position_side: str, percentage_
 
 @logger.catch()
 def open_position_futures(coin: str, position_side: str, percentage_deposit: float) -> dict | str | None:
-    quantity_info = get_quantity_max_min_futures(coin)
-    if isinstance(quantity_info, str) or not quantity_info:
-        return f"Не удалось получить данные по инструменту {coin}: {quantity_info}"
-    balance_client = get_free_balance_coin_futures(quantity_info['quote_asset'])
+    coin_info = get_exchange_info_coin_futures(coin)
+    if isinstance(coin_info, str) or not coin_info:
+        return f"Не удалось получить данные по инструменту {coin}: {coin_info}"
+    balance_client = get_free_balance_coin_futures(coin_info["quoteAsset"])
     if isinstance(balance_client, str):
         return f"Не удалось получить баланс клиента: {balance_client}"
-    price = ticker_price_futures(coin)
-    if isinstance(price, str) or not price:
-        return f"Не удалось получить цену инструмента {coin}: {price}"
+    ticker_price = ticker_price_futures(coin)
+    if isinstance(ticker_price, str) or not ticker_price:
+        logger.info(f"Не удалось получить цену инструмента {coin}: {ticker_price}")
+        return f"Не удалось получить цену инструмента {coin}: {ticker_price}"
     fee = float(commission_rate_futures(coin)['takerCommissionRate'])
     if isinstance(fee, str):
+        logger.info(f"Не удалось получить комиссию по инструменту {coin}: {fee}")
         return f"Не удалось получить комиссию по инструменту {coin}: {fee}"
-    price = float(price['price'])
     if position_side == "LONG":
         side = "BUY"
-        price -= round(price * 0.0002 / float(quantity_info['tick_size'])) * float(quantity_info['tick_size'])
+        price = float(ticker_price['price']) * 0.9998
     else:
         side = "SELL"
-        price += round(price * 0.0002 / float(quantity_info['tick_size'])) * float(quantity_info['tick_size'])
-    volume_max = get_volume_max(balance_client, quantity_info['min_quantity'], percentage_deposit, price)
-    if float(quantity_info['min_quantity']) <= volume_max + volume_max * fee:
+        price = float(ticker_price['price']) * 1.0002
+    rounding_accuracy = get_rounding_accuracy(coin_info["filters"][0].get("tickSize"))
+    price_round = round(price, rounding_accuracy)
+    volume_max = get_volume_max(balance_client, coin_info["filters"][1].get("minQty"), percentage_deposit, price)
+    if float(coin_info["filters"][1].get("minQty")) <= volume_max + volume_max * fee:
         return new_order_futures(
             symbol=coin,
             side=side,
@@ -45,32 +48,30 @@ def open_position_futures(coin: str, position_side: str, percentage_deposit: flo
             type_position="LIMIT",
             quantity=volume_max,
             time_in_force="GTC",
-            price=price
+            price=price_round
         )
     else:
+        logger.info("Недостаточно баланса для совершения операции.")
         return "Недостаточно баланса для совершения операции. " \
                "Увеличьте используемый процент от депозита или пополните депозит."
 
 
 @logger.catch()
-def get_quantity_max_min_futures(coin: str) -> str | dict | None:
+def get_exchange_info_coin_futures(coin: str) -> str | dict | None:
     exchange_info = exchange_info_futures()
     if isinstance(exchange_info, str):
+        logger.info(f"Не удалось получить информацию биржи по инструментам: {exchange_info}")
         return exchange_info
     for symbol in exchange_info["symbols"]:
         if symbol["symbol"] == coin:
-            quote_asset = symbol["quoteAsset"]
-            max_quantity = symbol["filters"][1].get("maxQty")
-            min_quantity = symbol["filters"][1].get("minQty")
-            tick_size = symbol["filters"][0].get("tickSize")
-            return {'max_quantity': max_quantity, 'min_quantity': min_quantity, 'quote_asset': quote_asset,
-                    'tick_size': tick_size}
+            return symbol
 
 
 @logger.catch()
 def get_free_balance_coin_futures(asset_name: str) -> float | str:
     balances = get_balance_futures()
     if isinstance(balances, str):
+        logger.info(f"Не удалось получить баланс клиента: {balances}")
         return balances
     for coin in balances:
         if coin["asset"] == asset_name:
@@ -79,10 +80,15 @@ def get_free_balance_coin_futures(asset_name: str) -> float | str:
 
 @logger.catch()
 def get_volume_max(balance_client: float, position_min_quantity: str, percentage_deposit: float, price: float) -> float:
-    decimal_places = len(position_min_quantity.split('.')[-1])
-    dec = 10 ** decimal_places
-    volume = int(balance_client * percentage_deposit / 100 / price * dec) / dec
-    return volume
+    decimal_places = get_rounding_accuracy(position_min_quantity)
+    return round(balance_client * percentage_deposit / 100 / price, decimal_places)
+
+
+@logger.catch()
+def get_rounding_accuracy(tick_size: str) -> int:
+    if tick_size.find('.') > 0:
+        return tick_size.split('.')[-1].find('1') + 1
+    return
 
 
 if __name__ == '__main__':
