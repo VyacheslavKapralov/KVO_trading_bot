@@ -15,7 +15,7 @@ def get_dataframe_pandas(data: list) -> pd.DataFrame:
                  'Taker_buy_quote_asset_volume', 'Ignore']
     )
     data_frame['Date'] = pd.to_datetime(data_frame['Date'], unit='ms')
-    data_frame = data_frame.set_index('Date')
+    # data_frame = data_frame.set_index('Date')
     data_frame[['Open', 'High', 'Low', 'Close', 'Volume']] = \
         data_frame[['Open', 'High', 'Low', 'Close', 'Volume']].apply(pd.to_numeric)
     return data_frame
