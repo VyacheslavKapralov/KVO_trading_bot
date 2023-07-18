@@ -37,7 +37,7 @@ def output_signals(exchange_type: str, symbol: str, time_frame: str, period_fast
     data = adding_dataframe_ema(data, period_fast, period_slow)
     current_position = add_position(data, period_fast, period_slow)
     logger.info(
-        f"{current_position_last['position']}/{current_position}: "
+        f"{current_position_last['position']}/{current_position} price = {data['Open'].iloc[-1]}: "
         f"{data[f'EMA_{period_fast}'].iloc[-1]}-{data[f'MA_{period_slow}'].iloc[-1]}")
     if current_position_last['position'] == current_position:
         return
