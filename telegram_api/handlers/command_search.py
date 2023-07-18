@@ -127,10 +127,11 @@ async def coin_signal(message, state):
                          f"Секция биржи: {data['exchange_type']}\n"
                          f"Тикер инструмента: {data['coin_name']}\n"
                          f"Тайм-фрейм: {data['time_frame']}\n"
-                         f"Процент используемого депозита: {data['percentage_deposit']}%\n"
+                         f"Используемый депозит {data['percentage_deposit']}% от общей суммы\n"
                          f"EMA: {data['ema']}\n"
                          f"MA: {data['ma']}",
                          reply_markup=menu_chancel())
+    current_position_last = {'position': ''}
     while not INTERRUPT:
         position = get_positions(data['coin_name'], data['exchange_type'])
         if isinstance(position, str):
@@ -147,9 +148,10 @@ async def coin_signal(message, state):
         waiting_time_seconds = get_waiting_time(now_time, data['time_frame'])
         seconds_passed = timeout_seconds - waiting_time_seconds
         if 0 <= seconds_passed <= 10:
-            logger.info(f'Отправка запроса на сервер.')
+            logger.info(f'Поиск сигнала.')
             signal = output_signals(exchange_type=data['exchange_type'], symbol=data['coin_name'],
-                                    time_frame=data['time_frame'], period_fast=data['ema'], period_slow=data['ma'])
+                                    time_frame=data['time_frame'], period_fast=data['ema'], period_slow=data['ma'],
+                                    current_position_last=current_position_last)
             logger.info(f'Получен сигнал: {signal}')
             if signal:
                 await message.answer(f"Получен сигнал '{signal}' на инструменте {data['coin_name']}, "

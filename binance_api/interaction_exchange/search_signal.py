@@ -24,21 +24,29 @@ def adding_dataframe_ema(data: list, period_fast: int, period_slow: int) -> pd.D
 
 @logger.catch()
 def add_position(data: pd.DataFrame, period_fast: int, period_slow: int) -> pd.DataFrame:
-    data['position'] = np.where(data[f'EMA_{period_fast}'] - data[f'MA_{period_slow}'] > 0, 'long', 'short')
-    return data
+    if data[f'EMA_{period_fast}'].iloc[-1] > data[f'MA_{period_slow}'].iloc[-1]:
+        return 'long'
+    return 'short'
 
 
 @logger.catch()
-def output_signals(exchange_type: str, symbol: str, time_frame: str, period_fast: int, period_slow: int) -> str:
+def output_signals(exchange_type: str, symbol: str, time_frame: str, period_fast: int, period_slow: int,
+                   current_position_last: dict) -> str | None:
     data = add_dataframe(exchange_type, symbol, time_frame, period_slow)
     if isinstance(data, str):
         return data
     data = adding_dataframe_ema(data, period_fast, period_slow)
-    data = add_position(data, period_fast, period_slow)
-    if data['position'][-2] == 'long' and data['position'][-1] == 'short':
-        return 'SHORT'
-    elif data['position'][-2] == 'short' and data['position'][-1] == 'long':
-        return 'LONG'
+    current_position = add_position(data, period_fast, period_slow)
+    logger.info(
+        f"{current_position_last['position']}/{current_position}: "
+        f"{data[f'EMA_{period_fast}'].iloc[-1]}-{data[f'MA_{period_slow}'].iloc[-1]}")
+    if current_position_last['position'] == current_position:
+        return
+    elif not current_position_last['position']:
+        current_position_last['position'] = current_position
+        return
+    else:
+        return current_position
 
 
 if __name__ == '__main__':
