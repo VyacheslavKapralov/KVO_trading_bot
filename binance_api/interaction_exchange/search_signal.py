@@ -45,6 +45,7 @@ def output_signals(exchange_type: str, symbol: str, time_frame: str, period_fast
         current_position_last['position'] = current_position
         return
     else:
+        current_position_last['position'] = current_position
         return current_position
 
 
