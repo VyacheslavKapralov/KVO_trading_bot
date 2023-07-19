@@ -24,8 +24,8 @@ def adding_dataframe_ema(data: list, period_fast: int, period_slow: int) -> pd.D
 @logger.catch()
 def add_position(data: pd.DataFrame, period_fast: int, period_slow: int) -> pd.DataFrame:
     if data[f'EMA_{period_fast}'].iloc[-1] > data[f'MA_{period_slow}'].iloc[-1]:
-        return 'long'
-    return 'short'
+        return 'LONG'
+    return 'SHORT'
 
 
 @logger.catch()
@@ -38,7 +38,7 @@ def output_signals(exchange_type: str, symbol: str, time_frame: str, period_fast
     current_position = add_position(data, period_fast, period_slow)
     logger.info(
         f"{current_position_last['position']}/{current_position} price = {data['Open'].iloc[-1]}: "
-        f"{data[f'EMA_{period_fast}'].iloc[-1]}-{data[f'MA_{period_slow}'].iloc[-1]}")
+        f"EMA: {data[f'EMA_{period_fast}'].iloc[-1]} MA: {data[f'MA_{period_slow}'].iloc[-1]}")
     if current_position_last['position'] == current_position:
         return
     elif not current_position_last['position']:
