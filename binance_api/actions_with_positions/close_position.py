@@ -19,10 +19,10 @@ def close_position_futures(coin: str, position_side: str, quantity: float) -> di
     exchange_info = get_exchange_info_coin_future(coin)
     if isinstance(exchange_info, str):
         return f"Не удалось получить данные по инструменту {coin}: {exchange_info}"
-    if position_side == "LONG":
+    if position_side == "SHORT":
         side = "BUY"
         price = float(ticker_price['price']) * 0.9998
-    else:
+    elif position_side == "LONG":
         side = "SELL"
         price = float(ticker_price['price']) * 1.0002
     rounding_accuracy = get_rounding_accuracy(exchange_info["filters"][0].get("tickSize"))

@@ -119,28 +119,27 @@ async def get_ma_period(message: types.Message, state: FSMContext):
 @logger.catch()
 async def coin_signal(message, state):
     async with state.proxy() as data:
-        pass
-    timeout_seconds = get_timeout_response(data['time_frame'])
-    logger.info(f"Интервал: {timeout_seconds} сек.")
-    await message.answer(f"Начинаю поиск сигналов на бирже Binance\n"
-                         f"Параметры поиска:\n"
-                         f"Секция биржи: {data['exchange_type']}\n"
-                         f"Тикер инструмента: {data['coin_name']}\n"
-                         f"Тайм-фрейм: {data['time_frame']}\n"
-                         f"Используемый депозит {data['percentage_deposit']}% от общей суммы\n"
-                         f"EMA: {data['ema']}\n"
-                         f"MA: {data['ma']}",
-                         reply_markup=menu_chancel())
+        timeout_seconds = get_timeout_response(data['time_frame'])
+        logger.info(f"Интервал: {timeout_seconds} сек.")
+        await message.answer(f"Начинаю поиск сигналов на бирже Binance\n"
+                             f"Параметры поиска:\n"
+                             f"Секция биржи: {data['exchange_type']}\n"
+                             f"Тикер инструмента: {data['coin_name']}\n"
+                             f"Тайм-фрейм: {data['time_frame']}\n"
+                             f"Используемый депозит {data['percentage_deposit']}% от общей суммы\n"
+                             f"EMA: {data['ema']}\n"
+                             f"MA: {data['ma']}",
+                             reply_markup=menu_chancel())
     current_position_last = {'position': ''}
     while not INTERRUPT:
         position = get_positions(data['coin_name'], data['exchange_type'])
         if isinstance(position, str):
             logger.info(f"Не удалось получить информацию по открытым позициям на бирже: {position}")
             await message.answer(f"Не удалось получить информацию по открытым позициям на бирже: {position}")
-            break
-        elif len(tuple(position)) > 1:
+            continue
+        elif len(position) > 1:
             await message.answer(f"На данном активе уже есть две противоположные позиции:\n"
-                                 f"{tuple(position)}\n"
+                                 f"{position}\n"
                                  f"Скорректируйте позиции на инструменте, чтоб бот мог на нем работать. "
                                  f"Можно оставить только одну позицию.")
             break
@@ -163,7 +162,7 @@ async def coin_signal(message, state):
                     exchange_type=data['exchange_type'],
                     position_side=signal,
                     percentage_deposit=float(data['percentage_deposit']),
-                    position=tuple(position)
+                    position=position
                 )
                 if success:
                     await message.answer(f"Размещен лимитный ордер:\n"
@@ -186,7 +185,7 @@ async def coin_signal(message, state):
             await asyncio.sleep(waiting_time_seconds)
             continue
         await asyncio.sleep(waiting_time_seconds)
-    await state.finish()
+    await command_chancel(message, state)
     logger.info("Поиск сигналов прерван.")
 
 

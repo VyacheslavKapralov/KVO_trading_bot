@@ -13,7 +13,7 @@ def get_positions_coin_um_futures(coin: str) -> Generator | str:
                     f"error message: {error.error_message}")
         return error.error_message
     all_positions = (position for position in positions if float(position['positionAmt']) != 0)
-    return (position for position in all_positions if position.get('symbol') == coin)
+    return tuple(position for position in all_positions if position.get('symbol') == coin)
 
 
 @logger.catch()
