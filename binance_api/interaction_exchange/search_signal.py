@@ -24,9 +24,10 @@ def adding_dataframe_ema(data: list, period_stop: int, period_fast: int, period_
 
 @logger.catch()
 def add_position(data: pd.DataFrame, period_stop: int, period_fast: int, period_slow: int) -> str | None:
-    if data[f'MA_{period_slow}'].iloc[-1] * 0.998 < data[f'EMA_{period_stop}'].iloc[-1] < \
-            data[f'MA_{period_slow}'].iloc[-1] * 1.002:
+    if data[f'EMA_{period_stop}'].iloc[-1] * 0.998 < data[f'MA_{period_slow}'].iloc[-1] < \
+            data[f'EMA_{period_stop}'].iloc[-1] * 1.002:
         return
+
     elif data[f'EMA_{period_fast}'].iloc[-1] > data[f'MA_{period_slow}'].iloc[-1] and \
             data[f'EMA_{period_stop}'].iloc[-1] < data['Open'].iloc[-1]:
         return 'LONG'
