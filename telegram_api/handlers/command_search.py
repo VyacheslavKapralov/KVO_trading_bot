@@ -172,6 +172,7 @@ async def coin_signal(message, state):
                         exchange=data['exchange_type'],
                         ticker=data['coin_name'],
                         period=data['time_frame'],
+                        trend=data['stop_line'],
                         ema=data['ema'],
                         ma=data['ma'],
                         signal=signal,

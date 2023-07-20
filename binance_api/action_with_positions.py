@@ -18,7 +18,7 @@ def action_choice(coin: str, exchange_type: str, signal: str, percentage_deposit
         else:
             logger.info(f"Не удалось открыть позицию: {open_pos}")
             return False, open_pos
-    elif signal == "CLOSE_LONG" or signal == "CLOSE_SHORT":
+    elif signal == "CLOSE_LONG" or signal == "CLOSE_SHORT" and len(existing_positions) > 0:
         side = signal.split('_')[-1]
         for position in existing_positions:
             if position.get('positionSide') == side:
@@ -30,6 +30,8 @@ def action_choice(coin: str, exchange_type: str, signal: str, percentage_deposit
                 else:
                     logger.info(f"Закрытие предыдущей позиции: {close_pos}")
                     return True, close_pos
+    logger.info(f"Нет позиций на инструменте {coin}")
+    return False, f"Нет позиций на инструменте {coin}"
 
 
 if __name__ == '__main__':

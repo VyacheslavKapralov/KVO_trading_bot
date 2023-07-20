@@ -11,8 +11,6 @@ def connect_database():
 
 @logger.catch()
 def create_database(name_tabl: str):
-    """Подключение и создание таблицы"""
-
     connect = connect_database()
     cursor = connect.cursor()
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS {name_tabl} (
@@ -20,6 +18,7 @@ def create_database(name_tabl: str):
                         user_name TEXT,
                         exchange TEXT,
                         period TEXT,
+                        trend INTEGER,
                         EMA INTEGER,
                         MA INTEGER,
                         signal TEXT,
@@ -31,37 +30,25 @@ def create_database(name_tabl: str):
 
 
 @logger.catch()
-def db_write(date_time: str, user_name: str, exchange: str, ticker: str, period: str, ema: int, ma: int,
+def db_write(date_time: str, user_name: str, exchange: str, ticker: str, period: str, trend: int, ema: int, ma: int,
              signal: str, position: str):
-    """Внесение данных в базу.
-
-    :param position:
-    :param signal:
-    :param ma:
-    :param ema:
-    :param period:
-    :param ticker:
-    :param exchange:
-    :param user_name:
-    :param date_time:
-    """
-
     connect = connect_database()
     cursor = connect.cursor()
     cursor.execute(
         f'INSERT INTO {ticker} '
         '('
-        'date_time, '
-        'user_name, '
-        'exchange, '
-        'period, '
-        'EMA, '
-        'MA, '
+        'date_time,'
+        'user_name,'
+        'exchange,'
+        'period,'
+        'trend,'
+        'EMA,'
+        'MA,'
         'signal,'
         'position'
-        ') '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        (date_time, user_name, exchange, period, ema, ma, signal, position)
+        ')'
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (date_time, user_name, exchange, period, trend, ema, ma, signal, position)
     )
     connect.commit()
     connect.close()
