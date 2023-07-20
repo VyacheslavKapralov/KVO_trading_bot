@@ -61,7 +61,7 @@ def output_signals(exchange_type: str, symbol: str, time_frame: str, period_stop
     if not current_position_last['position'] and current_position == "LONG" or current_position == "SHORT":
         current_position_last['position'] = current_position
         return current_position
-    if not current_position or current_position_last['position'] == current_position:
+    if current_position_last['position'] == current_position:
         return
     current_position_last['position'] = current_position
     return current_position
