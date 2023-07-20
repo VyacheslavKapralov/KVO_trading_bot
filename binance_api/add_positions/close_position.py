@@ -57,4 +57,4 @@ def get_rounding_accuracy(tick_size: str) -> int:
 
 
 if __name__ == '__main__':
-    logger.info('Running close_position.py from module actions_with_positions')
+    logger.info('Running close_position.py from module add_positions')

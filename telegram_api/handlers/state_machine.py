@@ -7,6 +7,7 @@ class CoinInfoStates(StatesGroup):
     coin_name = State()
     time_frame = State()
     percentage_deposit = State()
+    stop_line = State()
     ema = State()
     ma = State()
 
