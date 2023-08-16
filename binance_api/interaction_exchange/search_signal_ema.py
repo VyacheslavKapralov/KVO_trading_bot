@@ -1,16 +1,8 @@
 from loguru import logger
 import pandas as pd
-from working_with_data.add_dataframe_pandas import get_dataframe_pandas
-from working_with_data.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
-from binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api, get_klines_spot_without_api
 
-
-@logger.catch()
-def add_dataframe(exchange_type: str, symbol: str, time_frame: str, limit: int) -> list | str:
-    if exchange_type == 'SPOT':
-        return get_klines_spot_without_api(symbol, time_frame, limit)
-    elif exchange_type == 'FUTURES':
-        return get_klines_futures_without_api(symbol, time_frame, limit)
+from binance_api.exchange_data.add_dataframe import get_dataframe_pandas, add_dataframe
+from indicators.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
 
 
 @logger.catch()
@@ -47,11 +39,11 @@ def add_position(data: pd.DataFrame, period_stop: int, period_fast: int, period_
 
 
 @logger.catch()
-def output_signals(exchange_type: str, symbol: str, time_frame: str, period_stop: int, period_fast: int,
-                   period_slow: int, current_position_last: dict) -> str | None:
+def output_signals_ema(exchange_type: str, symbol: str, time_frame: str, period_stop: int, period_fast: int,
+                       period_slow: int, current_position_last: dict) -> tuple[bool, str] | None:
     data = add_dataframe(exchange_type, symbol, time_frame, period_stop)
     if isinstance(data, str):
-        return data
+        return False, data
     data = adding_dataframe_ema(data, period_stop, period_fast, period_slow)
     current_position = add_position(data, period_stop, period_fast, period_slow)
     logger.info(
@@ -60,12 +52,12 @@ def output_signals(exchange_type: str, symbol: str, time_frame: str, period_stop
         f"MA: {data[f'MA_{period_slow}'].iloc[-1]}")
     if not current_position_last['position'] and current_position == "LONG" or current_position == "SHORT":
         current_position_last['position'] = current_position
-        return current_position
+        return True, current_position
     if current_position_last['position'] == current_position:
         return
     current_position_last['position'] = current_position
-    return current_position
+    return True, current_position
 
 
 if __name__ == '__main__':
-    logger.info('Running search_signal.py from module telegram_api.interaction_exchange')
+    logger.info('Running search_signal_ema.py from module telegram_api.interaction_exchange')

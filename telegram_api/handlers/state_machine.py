@@ -2,7 +2,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from loguru import logger
 
 
-class CoinInfoStates(StatesGroup):
+class EmaStrategyState(StatesGroup):
     exchange_type = State()
     coin_name = State()
     time_frame = State()
@@ -10,6 +10,13 @@ class CoinInfoStates(StatesGroup):
     stop_line = State()
     ema = State()
     ma = State()
+
+
+class FiboStrategyState(StatesGroup):
+    exchange_type = State()
+    coin_name = State()
+    time_frame = State()
+    percentage_deposit = State()
 
 
 if __name__ == '__main__':

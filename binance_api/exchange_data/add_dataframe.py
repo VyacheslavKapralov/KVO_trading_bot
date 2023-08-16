@@ -1,5 +1,14 @@
 import pandas as pd
 from loguru import logger
+from binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api, get_klines_spot_without_api
+
+
+@logger.catch()
+def add_dataframe(exchange_type: str, symbol: str, time_frame: str, limit: int) -> list | str:
+    if exchange_type == 'SPOT':
+        return get_klines_spot_without_api(symbol, time_frame, limit)
+    elif exchange_type == 'FUTURES':
+        return get_klines_futures_without_api(symbol, time_frame, limit)
 
 
 @logger.catch()
@@ -22,4 +31,4 @@ def get_dataframe_pandas(data: list) -> pd.DataFrame:
 
 
 if __name__ == '__main__':
-    logger.info('Running add_dataframe_pandas.py from module binance_api')
+    logger.info('Running add_dataframe.py from module binance_api')

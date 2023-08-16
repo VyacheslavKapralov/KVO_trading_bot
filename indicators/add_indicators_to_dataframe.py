@@ -38,5 +38,37 @@ def add_stochastic(data: pd.DataFrame, fast: int, slow: int, smooth_k: int = 1) 
     return data
 
 
+@logger.catch()
+def fibonacci_retracement_down(data: pd.DataFrame):
+    fibo_numbers = (0.236, 0.382, 0.5, 0.618, 0.786, 1)
+    for number in fibo_numbers:
+        data[f'fibo_{number}'] = float(data['High']) - (float(data['High']) - float(data['Low'])) * number
+    return data
+
+
+@logger.catch()
+def fibonacci_retracement_up(data: pd.DataFrame):
+    fibo_numbers = (0.236, 0.382, 0.5, 0.618, 0.786, 1)
+    for number in fibo_numbers:
+        data[f'fibo_{number}'] = float(data['Low']) + (float(data['High']) - float(data['Low'])) * number
+    return data
+
+
+@logger.catch()
+def fibonacci_expansion_up(data: pd.DataFrame):
+    fibo_numbers = (0.618, 1.618, 2.618, 3.236)
+    for number in fibo_numbers:
+        data[f'fibo_{number}'] = float(data['High']) + (float(data['High']) - float(data['Low'])) * number
+    return data
+
+
+@logger.catch()
+def fibonacci_expansion_down(data: pd.DataFrame):
+    fibo_numbers = (0.618, 1.618, 2.618, 3.236)
+    for number in fibo_numbers:
+        data[f'fibo_{number}'] = float(data['Low']) - (float(data['High']) - float(data['Low'])) * number
+    return data
+
+
 if __name__ == '__main__':
     logger.info('Running add_indicators_to_dataframe.py from module binance_api')

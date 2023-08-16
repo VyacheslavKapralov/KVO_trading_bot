@@ -6,7 +6,7 @@ from binance_api.connect_binance import connect_um_futures_client, connect_spot_
 
 @logger.catch()
 def new_order_um_futures(symbol: str, side: str, position_side: str, type_position: str, quantity: float,
-                         time_in_force: str, price: float) -> dict | str:
+                         time_in_force: str, price: float = None, stop: float = None) -> dict | str:
     count = 0
     while True:
         try:
@@ -18,6 +18,7 @@ def new_order_um_futures(symbol: str, side: str, position_side: str, type_positi
                 quantity=quantity,
                 timeInForce=time_in_force,
                 price=price,
+                stopPrice=stop
             )
         except ClientError as error:
             logger.info(f"Found error status: {error.status_code}, error code: {error.error_code}, "
