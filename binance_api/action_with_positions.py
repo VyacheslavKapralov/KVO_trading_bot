@@ -28,7 +28,7 @@ def action_choice_ema(symbol: str, exchange_type: str, signal: str, percentage_d
         else:
             logger.info(f"Не удалось открыть позицию: {open_pos}")
             return False, open_pos
-    elif signal == "CLOSE_LONG" or signal == "CLOSE_SHORT" and len(existing_positions) > 0:
+    elif existing_positions and signal == "CLOSE_LONG" or signal == "CLOSE_SHORT":
         side = signal.split('_')[-1]
         for position in existing_positions:
             if position.get('positionSide') == side:
@@ -40,7 +40,6 @@ def action_choice_ema(symbol: str, exchange_type: str, signal: str, percentage_d
                 else:
                     logger.info(f"Закрытие предыдущей позиции: {close_pos}")
                     return True, close_pos
-    logger.info(f"Нет позиций на инструменте {symbol}")
     return False, f"Нет позиций на инструменте {symbol}"
 
 

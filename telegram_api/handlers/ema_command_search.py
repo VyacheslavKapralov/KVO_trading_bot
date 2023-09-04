@@ -127,68 +127,63 @@ async def get_ma_period(message: types.Message, state: FSMContext):
 @logger.catch()
 async def get_signal(message, state):
     async with state.proxy() as data:
-        timeout_seconds = get_timeout_response(data['time_frame'])
-        logger.info(f"Интервал: {timeout_seconds} сек.")
         await message.answer(f"Начинаю поиск сигналов на бирже Binance\n"
                              f"Параметры поиска:\n"
                              f"Секция биржи: {data['exchange_type']}\n"
                              f"Тикер инструмента: {data['coin_name']}\n"
                              f"Тайм-фрейм: {data['time_frame']}\n"
-                             f"Используемый депозит {data['percentage_deposit']}% от общей суммы\n"
+                             f"Используемый депозит: {data['percentage_deposit']}% от общей суммы\n"
                              f"Stop_EMA: {data['stop_line']}\n"
                              f"EMA: {data['ema']}\n"
                              f"MA: {data['ma']}",
                              reply_markup=menu_chancel())
-    current_position_last = {'position': ''}
+    await signal_search(data, message, state)
+
+
+@logger.catch()
+async def signal_search(data, message, state):
+    timeout_seconds = get_timeout_response(data['time_frame'])
+    logger.info(f'Старт поиска сигнала по стратегии EMA. Период: {timeout_seconds} сек')
+    current_position_last = {'position': None}
     while not INTERRUPT:
         now_time = datetime.datetime.now()
         waiting_time_seconds = get_waiting_time(now_time, data['time_frame'])
-        seconds_passed = timeout_seconds - waiting_time_seconds
-        if 0 <= seconds_passed <= 10:
-            logger.info(f'Поиск сигнала по стратегии EMA.')
-            flag, signal = output_signals_ema(exchange_type=data['exchange_type'], symbol=data['coin_name'],
-                                              time_frame=data['time_frame'], period_stop=data['stop_line'],
-                                              period_fast=data['ema'], period_slow=data['ma'],
-                                              current_position_last=current_position_last)
-            logger.info(f'Получен сигнал: {signal}')
-            if flag:
-                await message.answer(f"Получен сигнал '{signal}' на инструменте {data['coin_name']}, "
-                                     f"Тайм-фрейм: {data['time_frame']}\n"
-                                     f"Stop_EMA: {data['stop_line']}\n"
-                                     f"Скользящие средние:\n"
-                                     f"Быстрая - {data['ema']}, медленная - {data['ma']}")
-                success, order = action_choice(
-                    symbol=data['coin_name'],
-                    exchange_type=data['exchange_type'],
-                    signal=signal,
-                    percentage_deposit=float(data['percentage_deposit'])
-                )
-                if success:
-                    await message.answer(f"Размещен лимитный ордер:\n"
-                                         f"{order}")
-                    db_write(
-                        date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
-                        user_name=message.from_user.username,
-                        exchange=data['exchange_type'],
-                        ticker=data['coin_name'],
-                        period=data['time_frame'],
-                        trend=data['stop_line'],
-                        ema=data['ema'],
-                        ma=data['ma'],
-                        signal=signal,
-                        position=f"Price: {order.get('price')}; quantity: {order.get('origQty')}; "
-                                 f"type: {order.get('type')}; stop_price: {order.get('stopPrice')}"
-                    )
-                else:
-                    await message.answer(order)
-            elif isinstance(signal, str):
-                await message.answer(signal)
-        else:
-            await asyncio.sleep(waiting_time_seconds)
-            continue
         await asyncio.sleep(waiting_time_seconds)
+        flag, signal = output_signals_ema(exchange_type=data['exchange_type'], symbol=data['coin_name'],
+                                          time_frame=data['time_frame'], period_stop=data['stop_line'],
+                                          period_fast=data['ema'], period_slow=data['ma'],
+                                          current_position_last=current_position_last)
+        if flag:
+            await message.answer(f"Получен сигнал '{signal}' на инструменте {data['coin_name']}, "
+                                 f"Тайм-фрейм: {data['time_frame']}\n"
+                                 f"Stop_EMA: {data['stop_line']}\n"
+                                 f"Скользящие средние:\n"
+                                 f"Быстрая - {data['ema']}, медленная - {data['ma']}")
+            success, order = action_choice(symbol=data['coin_name'], exchange_type=data['exchange_type'],
+                                           signal=signal, percentage_deposit=float(data['percentage_deposit']))
+            logger.info(f"Ордер: {order}")
+            if success:
+                await message.answer(f"Размещен лимитный ордер:\n"
+                                     f"{order}")
+                db_write(
+                    date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    user_name=message.from_user.username,
+                    exchange=data['exchange_type'],
+                    ticker=data['coin_name'],
+                    period=data['time_frame'],
+                    trend=data['stop_line'],
+                    ema=data['ema'],
+                    ma=data['ma'],
+                    signal=signal,
+                    position=f"Price: {order.get('price')}; quantity: {order.get('origQty')}; "
+                             f"type: {order.get('type')}; stop_price: {order.get('stopPrice')}"
+                )
+            else:
+                await message.answer(order)
+        elif isinstance(signal, str):
+            await message.answer(signal)
     await command_chancel(message, state)
-    logger.info("Поиск сигналов прерван.")
+    logger.info("Поиск сигналов остановлен.")
 
 
 @logger.catch()

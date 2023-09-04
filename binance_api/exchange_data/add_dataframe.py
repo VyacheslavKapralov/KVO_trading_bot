@@ -1,6 +1,7 @@
 import pandas as pd
 from loguru import logger
 from binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api, get_klines_spot_without_api
+from indicators.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
 
 
 @logger.catch()
@@ -28,6 +29,15 @@ def get_dataframe_pandas(data: list) -> pd.DataFrame:
     data_frame[['Open', 'High', 'Low', 'Close', 'Volume']] = \
         data_frame[['Open', 'High', 'Low', 'Close', 'Volume']].apply(pd.to_numeric)
     return data_frame
+
+
+@logger.catch()
+def adding_dataframe_ema(data: list, period_stop: int, period_fast: int, period_slow: int) -> pd.DataFrame:
+    data = get_dataframe_pandas(data)
+    data = add_exponential_moving_average(data, period=period_stop)
+    data = add_exponential_moving_average(data, period=period_fast)
+    data = add_moving_average(data, period=period_slow)
+    return data
 
 
 if __name__ == '__main__':
