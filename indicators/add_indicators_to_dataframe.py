@@ -23,7 +23,7 @@ def add_average_true_range_period(data: pd.DataFrame, period: int) -> pd.DataFra
 
 
 @logger.catch()
-def add_MACD(data: pd.DataFrame, fast: int, slow: int, signal: int) -> pd.DataFrame:
+def add_macd(data: pd.DataFrame, fast: int, slow: int, signal: int) -> pd.DataFrame:
     macd = ta.macd(data['Close'], fast=fast, slow=slow, signal=signal)
     data['MACD'] = round(macd[f'MACD_{fast}_{slow}_{signal}'], 2)
     data['MACD_signal'] = round(macd[f'MACDs_{fast}_{slow}_{signal}'], 2)

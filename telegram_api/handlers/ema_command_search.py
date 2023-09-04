@@ -29,8 +29,10 @@ def ignore_messages(func):
 def check_int(func):
     async def wrapper(message: types.Message, state: FSMContext):
         try:
-            period = int(message.text)
-            await func(message, state)
+            if isinstance(message.text, int):
+                await func(message, state)
+            else:
+                raise
         except ValueError:
             await message.answer('Неверный период!\n'
                                  'Период должен быть целым числом. '

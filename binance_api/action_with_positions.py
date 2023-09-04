@@ -1,7 +1,7 @@
 from loguru import logger
-from binance_api.add_positions.close_position import close_position
-from binance_api.add_positions.open_position import open_position
-from binance_api.client_information.get_positions import get_positions
+
+from binance_api.get_exchange_client_info import Client
+from binance_api.trading import Position
 
 
 @logger.catch()
@@ -16,12 +16,14 @@ def action_choice(symbol: str, exchange_type: str, signal: str | tuple, percenta
 @logger.catch()
 def action_choice_ema(symbol: str, exchange_type: str, signal: str, percentage_deposit: float) -> \
         tuple[bool, dict | str]:
-    existing_positions = get_positions(symbol, exchange_type)
+    client = Client(symbol, exchange_type)
+    existing_positions = client.get_positions()
     if isinstance(existing_positions, str):
         logger.info(f"Не удалось получить информацию по открытым позициям на бирже: {existing_positions}")
         return False, f"Не удалось получить информацию по открытым позициям на бирже: {existing_positions}"
+    new_position = Position(exchange_type, symbol)
     if not existing_positions and signal == "SHORT" or signal == "LONG":
-        open_pos = open_position(symbol, exchange_type, signal, percentage_deposit)
+        open_pos = new_position.open_position(data=signal, percentage_deposit=percentage_deposit)
         if isinstance(open_pos, dict):
             logger.info(f"Открытие позиции: {open_pos}")
             return True, open_pos
@@ -32,8 +34,8 @@ def action_choice_ema(symbol: str, exchange_type: str, signal: str, percentage_d
         side = signal.split('_')[-1]
         for position in existing_positions:
             if position.get('positionSide') == side:
-                close_pos = close_position(symbol, exchange_type, position_side=side,
-                                           quantity=abs(float(position.get('positionAmt'))))
+                close_pos = new_position.close_position(position_side=side,
+                                                        quantity=abs(float(position.get('positionAmt'))))
                 if isinstance(close_pos, str):
                     logger.info(f"Не удалось закрыть позицию: {close_pos}")
                     return False, close_pos
@@ -46,7 +48,8 @@ def action_choice_ema(symbol: str, exchange_type: str, signal: str, percentage_d
 @logger.catch()
 def action_choice_fibo(symbol: str, exchange_type: str, signal: tuple, percentage_deposit: float) -> \
         tuple[bool, tuple | str]:
-    open_pos = open_position(symbol, exchange_type, signal, percentage_deposit)
+    new_position = Position(exchange_type, symbol)
+    open_pos = new_position.open_position(data=signal, percentage_deposit=percentage_deposit)
     if isinstance(open_pos, dict):
         logger.info(f"Размещен ордер: {open_pos}")
         return True, open_pos
@@ -57,4 +60,3 @@ def action_choice_fibo(symbol: str, exchange_type: str, signal: tuple, percentag
 
 if __name__ == '__main__':
     logger.info('Running action_with_positions.py from module binance_api')
-

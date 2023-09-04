@@ -1,8 +1,8 @@
 from loguru import logger
 import pandas as pd
 
-from binance_api.client_information.get_positions import get_positions
 from binance_api.exchange_data.add_dataframe import get_dataframe_pandas, add_dataframe
+from binance_api.get_exchange_client_info import Client
 from indicators.add_indicators_to_dataframe import fibonacci_retracement_down, fibonacci_retracement_up, \
     fibonacci_expansion_up, fibonacci_expansion_down
 
@@ -10,7 +10,8 @@ from indicators.add_indicators_to_dataframe import fibonacci_retracement_down, f
 @logger.catch()
 def output_signals_fibo(exchange_type: str, symbol: str, time_frame: str, received_order: dict) -> \
         str | tuple[float, float, float] | None:
-    existing_positions = get_positions(symbol, exchange_type)
+    client = Client(symbol, exchange_type)
+    existing_positions = client.get_positions()
     if isinstance(existing_positions, str):
         logger.info(f"Не удалось получить информацию по открытым позициям на бирже: {existing_positions}")
         return f"Не удалось получить информацию по открытым позициям на бирже: {existing_positions}"
