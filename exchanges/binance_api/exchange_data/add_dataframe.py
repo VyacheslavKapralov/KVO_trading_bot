@@ -1,6 +1,7 @@
 import pandas as pd
 from loguru import logger
-from binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api, get_klines_spot_without_api
+from exchanges.binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api, \
+    get_klines_spot_without_api
 from indicators.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
 
 

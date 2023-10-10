@@ -1,7 +1,7 @@
 from loguru import logger
 
-from binance_api.get_exchange_client_info import Client
-from binance_api.trading import Position
+from exchanges.binance_api.get_exchange_client_info import Client
+from exchanges.binance_api.trading import Position
 
 
 @logger.catch()

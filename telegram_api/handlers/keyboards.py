@@ -12,12 +12,28 @@ def main_menu():
 
 
 @logger.catch()
+def menu_strategy():
+    return InlineKeyboardMarkup(row_width=2).row(
+        InlineKeyboardButton(text='EMA', callback_data='EMA'),
+        InlineKeyboardButton(text='FIBO', callback_data='FIBO')
+    )
+
+
+@logger.catch()
 def menu_chancel():
     return ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton('/chancel'))
 
 
 @logger.catch()
 def menu_exchange():
+    return InlineKeyboardMarkup(row_width=2).row(
+        InlineKeyboardButton(text='BINANCE', callback_data='BINANCE'),
+        InlineKeyboardButton(text='BYBIT', callback_data='BYBIT')
+    )
+
+
+@logger.catch()
+def menu_exchange_type():
     return InlineKeyboardMarkup(row_width=2).row(
         InlineKeyboardButton(text='FUTURES', callback_data='FUTURES'),
         InlineKeyboardButton(text='SPOT', callback_data='SPOT')

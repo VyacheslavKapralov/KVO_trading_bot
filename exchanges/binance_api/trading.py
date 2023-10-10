@@ -2,11 +2,11 @@ import time
 
 from loguru import logger
 from binance.error import ClientError
-from binance_api.connect_binance import connect_um_futures_client, connect_spot_client
-from binance_api.exchange_data.commission_rate import commission_rate_um_futures
-from binance_api.exchange_data.exchange_info import exchange_info_um_futures
-from binance_api.exchange_data.ticker_price import ticker_price_um_futures
-from binance_api.get_exchange_client_info import Client
+from exchanges.binance_api.connect_binance import connect_um_futures_client, connect_spot_client
+from exchanges.binance_api.exchange_data.commission_rate import commission_rate_um_futures
+from exchanges.binance_api.exchange_data.exchange_info import exchange_info_um_futures
+from exchanges.binance_api.exchange_data.ticker_price import ticker_price_um_futures
+from exchanges.binance_api.get_exchange_client_info import Client
 
 
 class Order:

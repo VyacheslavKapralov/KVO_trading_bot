@@ -2,7 +2,14 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from loguru import logger
 
 
+class StrategyState(StatesGroup):
+    strategy = State()
+    strategy_typ = State()
+
+
 class EmaStrategyState(StatesGroup):
+    start = State()
+    exchange = State()
     exchange_type = State()
     coin_name = State()
     time_frame = State()
@@ -13,6 +20,8 @@ class EmaStrategyState(StatesGroup):
 
 
 class FiboStrategyState(StatesGroup):
+    start = State()
+    exchange = State()
     exchange_type = State()
     coin_name = State()
     time_frame = State()

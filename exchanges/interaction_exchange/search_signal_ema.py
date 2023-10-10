@@ -1,6 +1,6 @@
 from loguru import logger
 
-from binance_api.exchange_data.add_dataframe import add_dataframe, adding_dataframe_ema
+from exchanges.binance_api.exchange_data.add_dataframe import add_dataframe, adding_dataframe_ema
 
 
 @logger.catch()

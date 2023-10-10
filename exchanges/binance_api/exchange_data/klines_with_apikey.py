@@ -1,6 +1,6 @@
 from loguru import logger
 from binance.error import ClientError
-from binance_api.connect_binance import connect_um_futures_client
+from exchanges.binance_api.connect_binance import connect_um_futures_client
 
 
 @logger.catch()
