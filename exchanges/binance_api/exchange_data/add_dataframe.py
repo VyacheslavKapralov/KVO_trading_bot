@@ -6,7 +6,7 @@ from indicators.add_indicators_to_dataframe import add_exponential_moving_averag
 
 
 @logger.catch()
-def add_dataframe(exchange_type: str, symbol: str, time_frame: str, limit: int) -> list | str:
+def add_dataframe_binance(exchange_type: str, symbol: str, time_frame: str, limit: int) -> list | str:
     if exchange_type == 'SPOT':
         return get_klines_spot_without_api(symbol, time_frame, limit)
     elif exchange_type == 'FUTURES':
@@ -14,7 +14,7 @@ def add_dataframe(exchange_type: str, symbol: str, time_frame: str, limit: int) 
 
 
 @logger.catch()
-def get_dataframe_pandas(data: list) -> pd.DataFrame:
+def get_dataframe_pandas_binance(data: list) -> pd.DataFrame:
     data_frame = pd.DataFrame(
         data,
         columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close_time', 'Quote_asset_volume',
@@ -33,8 +33,7 @@ def get_dataframe_pandas(data: list) -> pd.DataFrame:
 
 
 @logger.catch()
-def adding_dataframe_ema(data: list, period_stop: int, period_fast: int, period_slow: int) -> pd.DataFrame:
-    data = get_dataframe_pandas(data)
+def adding_dataframe_ema(data: pd.DataFrame, period_stop: int, period_fast: int, period_slow: int) -> pd.DataFrame:
     data = add_exponential_moving_average(data, period=period_stop)
     data = add_exponential_moving_average(data, period=period_fast)
     data = add_moving_average(data, period=period_slow)

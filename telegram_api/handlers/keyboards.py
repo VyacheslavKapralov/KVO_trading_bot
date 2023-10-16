@@ -13,9 +13,10 @@ def main_menu():
 
 @logger.catch()
 def menu_strategy():
-    return InlineKeyboardMarkup(row_width=2).row(
-        InlineKeyboardButton(text='EMA', callback_data='EMA'),
-        InlineKeyboardButton(text='FIBO', callback_data='FIBO')
+    return InlineKeyboardMarkup(row_width=1).add(
+        InlineKeyboardButton(text='Intersection EMA and MA', callback_data='EMA'),
+        InlineKeyboardButton(text='Correction Fibonacci', callback_data='FIBO'),
+        InlineKeyboardButton(text='Smart Money Management', callback_data='SMM'),
     )
 
 
@@ -28,7 +29,7 @@ def menu_chancel():
 def menu_exchange():
     return InlineKeyboardMarkup(row_width=2).row(
         InlineKeyboardButton(text='BINANCE', callback_data='BINANCE'),
-        InlineKeyboardButton(text='BYBIT', callback_data='BYBIT')
+        InlineKeyboardButton(text='BYBIT', callback_data='BYBIT'),
     )
 
 
@@ -36,7 +37,7 @@ def menu_exchange():
 def menu_exchange_type():
     return InlineKeyboardMarkup(row_width=2).row(
         InlineKeyboardButton(text='FUTURES', callback_data='FUTURES'),
-        InlineKeyboardButton(text='SPOT', callback_data='SPOT')
+        InlineKeyboardButton(text='SPOT', callback_data='SPOT'),
     )
 
 
@@ -52,7 +53,7 @@ def menu_ticker():
         InlineKeyboardButton(text='SOLUSDT', callback_data='SOLUSDT'),
         InlineKeyboardButton(text='ATOMUSDT', callback_data='ATOMUSDT'),
         InlineKeyboardButton(text='LINKUSDT', callback_data='LINKUSDT'),
-        InlineKeyboardButton(text='MKRUSDT', callback_data='MKRUSDT')
+        InlineKeyboardButton(text='MKRUSDT', callback_data='MKRUSDT'),
     )
 
 
@@ -71,7 +72,7 @@ def menu_time_frame():
         InlineKeyboardButton(text='12 hours', callback_data='12h'),
         InlineKeyboardButton(text='1 day', callback_data='1d'),
         InlineKeyboardButton(text='1 week', callback_data='1w'),
-        # InlineKeyboardButton(text='1 month', callback_data='1M')
+        # InlineKeyboardButton(text='1 month', callback_data='1M'),
     )
 
 

@@ -3,7 +3,7 @@ from loguru import logger
 
 from logs.start_log import log_telegram_bot
 from telegram_api.connect_telegrambot import dp
-from telegram_api.handlers import commands
+from telegram_api.handlers import commands, command_search_signal
 
 
 async def on_startup(_):
@@ -12,6 +12,7 @@ async def on_startup(_):
 
 
 commands.register_handlers_commands(dp)
+command_search_signal.register_handlers_commands_search_signal(dp)
 
 
 if __name__ == '__main__':

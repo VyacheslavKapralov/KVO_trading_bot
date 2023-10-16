@@ -1,6 +1,7 @@
 from loguru import logger
 
-from exchanges.binance_api.exchange_data.add_dataframe import add_dataframe, adding_dataframe_ema
+from exchanges.binance_api.exchange_data.add_dataframe import add_dataframe_binance, adding_dataframe_ema, \
+    get_dataframe_pandas_binance
 
 
 @logger.catch()
@@ -27,9 +28,13 @@ def add_position(data, period_stop: int, period_fast: int, period_slow: int) -> 
 
 
 @logger.catch()
-def output_signals_ema(exchange_type: str, symbol: str, time_frame: str, period_stop: int, period_fast: int,
-                       period_slow: int, current_position_last: dict) -> tuple[bool, str | None]:
-    data = add_dataframe(exchange_type, symbol, time_frame, period_stop)
+def output_signals_ema(exchange: str, exchange_type: str, symbol: str, time_frame: str, period_stop: int,
+                       period_fast: int, period_slow: int, current_position_last: dict) -> tuple[bool, str | None]:
+    if exchange == 'BINANCE':
+        data = add_dataframe_binance(exchange_type, symbol, time_frame, period_stop)
+        data = get_dataframe_pandas_binance(data)
+    else:
+        data = ''
     if isinstance(data, str):
         return False, data
     data = adding_dataframe_ema(data, period_stop, period_fast, period_slow)
@@ -46,4 +51,4 @@ def output_signals_ema(exchange_type: str, symbol: str, time_frame: str, period_
 
 
 if __name__ == '__main__':
-    logger.info('Running search_signal_ema.py from module telegram_api.interaction_exchange')
+    logger.info('Running search_signal_ema.py from module strategies')

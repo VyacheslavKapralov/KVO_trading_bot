@@ -1,7 +1,7 @@
 from loguru import logger
 import pandas as pd
 
-from exchanges.binance_api.exchange_data.add_dataframe import get_dataframe_pandas, add_dataframe
+from exchanges.binance_api.exchange_data.add_dataframe import get_dataframe_pandas_binance, add_dataframe_binance
 from exchanges.binance_api.get_exchange_client_info import Client
 from indicators.add_indicators_to_dataframe import fibonacci_retracement_down, fibonacci_retracement_up, \
     fibonacci_expansion_up, fibonacci_expansion_down
@@ -19,7 +19,7 @@ def output_signals_fibo(exchange_type: str, symbol: str, time_frame: str, receiv
         logger.info(f"На инструменте {symbol} секции {exchange_type} есть открытые позиции: {existing_positions}")
         return f"На инструменте {symbol} секции {exchange_type} есть открытые позиции: {existing_positions}.\n" \
                f"Необходимо закрыть все имеющиеся позиции для корректной работы бота."
-    data = add_dataframe(exchange_type, symbol, time_frame, limit=1)
+    data = add_dataframe_binance(exchange_type, symbol, time_frame, limit=1)
     if isinstance(data, str):
         return data
     data = adding_dataframe_fibo(data)
@@ -36,7 +36,7 @@ def output_signals_fibo(exchange_type: str, symbol: str, time_frame: str, receiv
 
 @logger.catch()
 def adding_dataframe_fibo(data: list) -> pd.DataFrame:
-    data = get_dataframe_pandas(data)
+    data = get_dataframe_pandas_binance(data)
     if float(data['High'].ilock[-1]) > float(data['Low'].ilock[-1]):
         data = fibonacci_retracement_down(data)
         data = fibonacci_expansion_up(data)
@@ -47,4 +47,4 @@ def adding_dataframe_fibo(data: list) -> pd.DataFrame:
 
 
 if __name__ == '__main__':
-    logger.info('Running search_signal_fibo.py from module telegram_api.interaction_exchange')
+    logger.info('Running search_signal_fibo.py from module telegram_api.strategies')

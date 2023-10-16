@@ -31,4 +31,4 @@ def get_waiting_time(now, time_frame: str) -> int:
 
 
 if __name__ == '__main__':
-    logger.info('Running time_frames_editing.py from module telegram_api.interaction_exchange')
+    logger.info('Running time_frames_editing.py from module telegram_api.strategies')
