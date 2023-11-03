@@ -17,5 +17,16 @@ class EmaStrategyState(StatesGroup):
     ma = State()
 
 
+class GridState(StatesGroup):
+    exchange = State()
+    exchange_type = State()
+    coin_name = State()
+    percentage_deposit = State()
+    upper_price = State()
+    lower_price = State()
+    mesh_threads = State()
+    starting_price = State()
+
+
 if __name__ == '__main__':
     logger.info('Running state_machine.py from module telegram_api/handlers')

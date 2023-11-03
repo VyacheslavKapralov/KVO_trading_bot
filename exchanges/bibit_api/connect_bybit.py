@@ -26,6 +26,4 @@ def connect_bybit(testnet: bool = False) -> object | str:
 
 if __name__ == '__main__':
     logger.info('Running connect_bybit.py from module exchange.bybit_api')
-    # session = connect_bybit()
-    # print(session.get_wallet_balance(accountType="UNIFIED"))
 
