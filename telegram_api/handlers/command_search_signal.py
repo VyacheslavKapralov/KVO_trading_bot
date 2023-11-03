@@ -9,6 +9,7 @@ from database.database import db_write, create_database
 from exchanges.binance_api.action_with_positions import action_choice
 from exchanges.binance_api.exchange_data.time_frames_editing import get_timeout_response, get_waiting_time
 from strategies.signal_ema import output_signals_ema
+from telegram_api.handlers.command_arrange_grid import command_chancel
 from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, menu_ticker, menu_time_frame, \
     menu_percentage, menu_chancel, menu_strategy
 from telegram_api.handlers.state_machine import EmaStrategyState, StrategyState
@@ -25,17 +26,6 @@ def ignore_messages(func):
             return await func(message, state)
 
     return wrapper
-
-
-@logger.catch()
-async def command_chancel(message: types.Message, state: FSMContext):
-    current_state = await state.get_state()
-    if current_state:
-        global INTERRUPT
-        INTERRUPT = True
-        await state.finish()
-        await message.answer('Остановка поиска сигналов.')
-        logger.info("Получена команда на остановку поиска сигналов.")
 
 
 @logger.catch()
@@ -209,9 +199,6 @@ def register_handlers_commands_search_signal(dp: Dispatcher):
     dp.register_message_handler(get_ema_stop_period, state=EmaStrategyState.stop_line)
     dp.register_message_handler(get_ema_period, state=EmaStrategyState.ema)
     dp.register_message_handler(get_ma_period, state=EmaStrategyState.ma)
-    dp.register_message_handler(command_chancel, commands=['сброс', 'прервать', 'chancel'], state='*')
-    dp.register_message_handler(command_chancel, Text(equals=['сброс', 'прервать', 'chancel'], ignore_case=True),
-                                state='*')
 
 
 if __name__ == '__main__':

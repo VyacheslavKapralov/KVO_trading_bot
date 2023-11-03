@@ -9,7 +9,7 @@ from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, m
     menu_chancel
 from telegram_api.handlers.state_machine import GridState
 from telegram_api.handlers.wrappers import deposit_verification, check_float, price_verification, \
-    checking_feasibility_strategy, check_int
+    checking_feasibility_strategy, check_int, validation_data
 
 INTERRUPT = False
 IGNORE_MESSAGE = False
@@ -121,6 +121,7 @@ async def get_start_price(message: types.Message, state: FSMContext):
 
 
 @logger.catch()
+@validation_data
 @checking_feasibility_strategy
 async def start_grid_strategy(message: types.Message, state: FSMContext):
     async with state.proxy() as data:

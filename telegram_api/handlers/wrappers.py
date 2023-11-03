@@ -1,6 +1,7 @@
 from loguru import logger
 
 from exchanges.bibit_api.client_info import get_balance_unified_trading, get_balance_financing
+from telegram_api.handlers.keyboards import menu_chancel
 
 
 @logger.catch()
@@ -81,7 +82,22 @@ def checking_feasibility_strategy(func):
             await message.answer(f"Не хватает выделенного депозита для сетки.\n"
                                  f"Величина лота на ордер: {transaction_cost / float(data['upper_price'])}\n"
                                  f"меньше минимально возможной: {base_precision}\n"
-                                 f"Пересмотрите параметры сетки.")
+                                 f"Пересмотрите параметры сетки.", reply_markup=menu_chancel())
+
+    return wrapper
+
+
+@logger.catch()
+def validation_data(func):
+    async def wrapper(message, state):
+        async with state.proxy() as data:
+            if float(data['upper_price']) > float(data['start_price']) > float(data['lower_price']):
+                await func(message, state)
+            else:
+                await message.answer(f"Проверьте корректность введенных параметров сетки.\n"
+                                     f"Верхняя цена сетки: {data['upper_price']}\n"
+                                     f"Нижняя цена сетки: {data['lower_price']}\n"
+                                     f"Цена запуска бота: {data['start_price']}\n", reply_markup=menu_chancel())
 
     return wrapper
 
