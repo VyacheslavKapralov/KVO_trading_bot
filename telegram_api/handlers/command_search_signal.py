@@ -1,19 +1,18 @@
 import asyncio
 import datetime
 
-from aiogram.dispatcher.filters import Text
 from loguru import logger
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from database.database import db_write, create_database
-from exchanges.binance_api.action_with_positions import action_choice
-from exchanges.binance_api.exchange_data.time_frames_editing import get_timeout_response, get_waiting_time
+from exchanges.trading.action_with_positions import action_choice
+from exchanges.working_with_data.time_frames_editing import get_timeout_response, get_waiting_time
 from strategies.signal_ema import output_signals_ema
 from telegram_api.handlers.command_arrange_grid import command_chancel
+from telegram_api.handlers.decorators import check_int
 from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, menu_ticker, menu_time_frame, \
     menu_percentage, menu_chancel, menu_strategy
 from telegram_api.handlers.state_machine import EmaStrategyState, StrategyState
-from telegram_api.handlers.wrappers import check_int
 
 INTERRUPT = False
 IGNORE_MESSAGE = False

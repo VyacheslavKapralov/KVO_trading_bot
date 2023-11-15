@@ -2,8 +2,8 @@ import pandas as pd
 import mplfinance as mpf
 from loguru import logger
 
-from exchanges.binance_api.exchange_data.add_dataframe import get_dataframe_pandas_binance
-from exchanges.binance_api.exchange_data.klines_without_apikey import get_klines_futures_without_api
+from exchanges.working_with_data.add_dataframe import get_dataframe_pandas_binance
+from exchanges.binance_api.klines_without_apikey import get_klines_futures_without_api
 from plotting.creating_graph import building_price_chart
 
 

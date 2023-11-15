@@ -19,5 +19,20 @@ def get_instrument_info(exchange_type: str, symbol: str):
         count -= 1
 
 
+@logger.catch()
+def get_tickers(exchange_type: str, symbol: str):
+    count = 3
+    while count > 0:
+        session = connect_bybit()
+        if not isinstance(session, str):
+            try:
+                return session.get_tickers(category=exchange_type, symbol=symbol)
+            except InvalidRequestError as error:
+                logger.info(f"Found error status code: {error.status_code}, error resp_headers: {error.resp_headers}, "
+                            f"error message: {error.message}")
+                return f'Error code: {error.status_code} - {error.message}'
+        count -= 1
+
+
 if __name__ == '__main__':
     logger.info('Running coin_info.py from module exchange.bybit_api')

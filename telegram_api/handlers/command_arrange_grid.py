@@ -5,11 +5,11 @@ from aiogram.dispatcher import FSMContext
 
 from database.database import create_database
 from exchanges.bibit_api.coin_info import get_instrument_info
+from telegram_api.handlers.decorators import deposit_verification, check_float, price_verification, check_int, \
+    validation_data, checking_feasibility_strategy
 from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, menu_ticker, menu_percentage, \
     menu_chancel
 from telegram_api.handlers.state_machine import GridState
-from telegram_api.handlers.wrappers import deposit_verification, check_float, price_verification, \
-    checking_feasibility_strategy, check_int, validation_data
 
 INTERRUPT = False
 IGNORE_MESSAGE = False

@@ -1,7 +1,7 @@
 from loguru import logger
 
-from exchanges.binance_api.get_exchange_client_info import Client
-from exchanges.binance_api.trading import Position
+from exchanges.client_info.client_info import Client
+from exchanges.trading.position import Position
 
 
 @logger.catch()
@@ -16,14 +16,14 @@ def action_choice(symbol: str, exchange: str, exchange_type: str, signal: str, s
 
 
 @logger.catch()
-def action_choice_ema(symbol: str, exchange_type: str, signal: str, percentage_deposit: float) -> \
+def action_choice_ema(symbol: str, exchange: str, exchange_type: str, signal: str, percentage_deposit: float) -> \
         tuple[bool, dict | str]:
-    client = Client(symbol, exchange_type)
+    client = Client(exchange, exchange_type, symbol)
     existing_positions = client.get_positions()
     if isinstance(existing_positions, str):
         logger.info(f"Не удалось получить информацию по открытым позициям на бирже: {existing_positions}")
         return False, f"Не удалось получить информацию по открытым позициям на бирже: {existing_positions}"
-    new_position = Position(exchange_type, symbol)
+    new_position = Position(exchange, exchange_type, symbol, 'EMA')
     if not existing_positions and signal == "SHORT" or signal == "LONG":
         open_pos = new_position.open_position(data=signal, percentage_deposit=percentage_deposit)
         if isinstance(open_pos, str):
@@ -49,9 +49,9 @@ def action_choice_ema(symbol: str, exchange_type: str, signal: str, percentage_d
 
 
 @logger.catch()
-def action_choice_fibo(symbol: str, exchange_type: str, signal: tuple, percentage_deposit: float) -> \
+def action_choice_fibo(symbol: str, exchange: str, exchange_type: str, signal: tuple, percentage_deposit: float) -> \
         tuple[bool, dict | str]:
-    new_position = Position(exchange_type, symbol)
+    new_position = Position(exchange, exchange_type, symbol)
     open_pos = new_position.open_position(data=signal, percentage_deposit=percentage_deposit)
     if isinstance(open_pos, str):
         logger.info(f"Не удалось разместить ордер: {open_pos}")

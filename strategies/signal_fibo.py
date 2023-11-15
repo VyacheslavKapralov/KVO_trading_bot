@@ -1,16 +1,16 @@
 from loguru import logger
 import pandas as pd
 
-from exchanges.binance_api.exchange_data.add_dataframe import get_dataframe_pandas_binance, add_dataframe_binance
-from exchanges.binance_api.get_exchange_client_info import Client
+from exchanges.client_info.client_info import Client
+from exchanges.working_with_data.add_dataframe import add_dataframe_binance, get_dataframe_pandas_binance
 from indicators.add_indicators_to_dataframe import fibonacci_retracement_down, fibonacci_retracement_up, \
     fibonacci_expansion_up, fibonacci_expansion_down
 
 
 @logger.catch()
-def output_signals_fibo(exchange_type: str, symbol: str, time_frame: str, received_order: dict) -> \
+def output_signals_fibo(exchange: str, exchange_type: str, symbol: str, time_frame: str, received_order: dict) -> \
         str | tuple[float, float, float] | None:
-    client = Client(symbol, exchange_type)
+    client = Client(exchange, exchange_type, symbol)
     existing_positions = client.get_positions()
     if isinstance(existing_positions, str):
         logger.info(f"Не удалось получить информацию по открытым позициям на бирже: {existing_positions}")

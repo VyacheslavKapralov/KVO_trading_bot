@@ -1,6 +1,6 @@
 from loguru import logger
 
-from exchanges.binance_api.exchange_data.add_dataframe import add_dataframe_binance, adding_dataframe_ema, \
+from exchanges.working_with_data.add_dataframe import add_dataframe_binance, adding_dataframe_ema, \
     get_dataframe_pandas_binance
 
 
