@@ -16,6 +16,7 @@ def menu_strategy():
         InlineKeyboardButton(text='Intersection EMA and MA', callback_data='EMA'),
         InlineKeyboardButton(text='Correction Fibonacci', callback_data='FIBO'),
         InlineKeyboardButton(text='Smart Money Management', callback_data='SMM'),
+        InlineKeyboardButton(text='Fractals', callback_data='FRACTAL'),
     )
 
 
@@ -87,6 +88,15 @@ def menu_percentage():
         InlineKeyboardButton(text='50', callback_data='50'),
         InlineKeyboardButton(text='75', callback_data='75'),
         InlineKeyboardButton(text='100', callback_data='100'),
+    )
+
+
+@logger.catch()
+def menu_price_stop():
+    return InlineKeyboardMarkup(row_width=2).add(
+        InlineKeyboardButton(text='В процентах от депозита', callback_data='percent'),
+        InlineKeyboardButton(text='В USDT от цены входа', callback_data='usdt'),
+        InlineKeyboardButton(text='В ATR равный периоду индикатора', callback_data='atr'),
     )
 
 

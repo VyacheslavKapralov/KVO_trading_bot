@@ -165,10 +165,10 @@ class Position(Client):
             return "Недостаточно баланса для совершения операции. " \
                    "Увеличьте используемый процент от депозита или пополните депозит."
 
-    def _open_position_fractal_futures_binance(self, data, percentage_deposit):
+    def _open_position_fibo_spot_binance(self, data, percentage_deposit):
         pass
 
-    def _open_position_fibo_spot_binance(self, data, percentage_deposit):
+    def _open_position_fractal_futures_binance(self, data, percentage_deposit):
         pass
 
     def _open_position_fractal_spot_binance(self, data, percentage_deposit):
@@ -185,6 +185,13 @@ class Position(Client):
 
     def _open_position_fibo_spot_biybit(self, data, percentage_deposit):
         pass
+
+    def _open_position_fractal_futures_biybit(self, data, percentage_deposit):
+        pass
+
+    def _open_position_fractal_spot_biybit(self, data, percentage_deposit):
+        pass
+
 
     @logger.catch()
     def _close_position_futures_binance(self, position_side: str, quantity: float) -> dict | str:

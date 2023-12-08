@@ -34,4 +34,3 @@ def spread_grid(num, order_book):
 
 if __name__ == '__main__':
     logger.info('Running grid.py from module strategies')
-    print(get_current_price('spot', 'BTCUSDT'))

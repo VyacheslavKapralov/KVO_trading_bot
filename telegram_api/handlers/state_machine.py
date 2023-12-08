@@ -17,6 +17,15 @@ class EmaStrategyState(StatesGroup):
     ma = State()
 
 
+class FractalStrategyState(StatesGroup):
+    period = State()
+    stop_loss_selection = State()
+    stop_loss = State()
+    take_profit_selection = State()
+    take_profit = State()
+    multiplicity_atr = State()
+
+
 class GridState(StatesGroup):
     exchange = State()
     exchange_type = State()
