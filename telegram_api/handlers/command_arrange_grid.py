@@ -11,14 +11,13 @@ from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, m
     menu_chancel
 from telegram_api.handlers.state_machine import GridState
 
-INTERRUPT = False
-IGNORE_MESSAGE = False
+_variables = {'ignore_message': False, 'interrupt': False}
 
 
 @logger.catch()
 def ignore_messages(func):
     async def wrapper(message: types.Message, state: FSMContext):
-        if not IGNORE_MESSAGE:
+        if not _variables['ignore_message']:
             return await func(message, state)
 
     return wrapper
@@ -28,8 +27,7 @@ def ignore_messages(func):
 async def command_chancel(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state:
-        global INTERRUPT
-        INTERRUPT = True
+        _variables['interrupt'] = True
         await state.finish()
         await message.answer('Остановка бота.')
         logger.info("Получена команда на остановку бота.")
@@ -37,9 +35,7 @@ async def command_chancel(message: types.Message, state: FSMContext):
 
 @logger.catch()
 async def command_arrange_grid(message: types.Message):
-    global INTERRUPT, IGNORE_MESSAGE
-    INTERRUPT = False
-    IGNORE_MESSAGE = False
+    _variables = {'ignore_message': False, 'interrupt': False}
     await GridState.exchange.set()
     await message.answer('На какой бирже искать сигналы?', reply_markup=menu_exchange())
 
@@ -115,8 +111,7 @@ async def get_mesh_threads(message: types.Message, state: FSMContext):
 async def get_start_price(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['start_price'] = float(message.text)
-    global IGNORE_MESSAGE
-    IGNORE_MESSAGE = True
+    _variables['ignore_message'] = True
     await start_grid_strategy(message, state)
 
 

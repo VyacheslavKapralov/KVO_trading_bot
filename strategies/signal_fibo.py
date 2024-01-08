@@ -1,7 +1,7 @@
 from loguru import logger
 import pandas as pd
 
-from exchanges.client_info.client_info import Client
+from exchanges.client.client_info import Client
 from exchanges.working_with_data.add_dataframe import add_dataframe_binance, get_dataframe_pandas_binance
 from indicators.add_indicators_to_dataframe import fibonacci_retracement_down, fibonacci_retracement_up, \
     fibonacci_expansion_up, fibonacci_expansion_down

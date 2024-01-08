@@ -1,5 +1,7 @@
 from loguru import logger
 from binance.error import ClientError
+
+from exchanges.bibit_api.client_info import get_balance_financing, get_balance_unified_trading
 from exchanges.binance_api.connect_binance import connect_um_futures_client, connect_spot_client
 
 
@@ -26,6 +28,21 @@ class Client:
             return ""
 
     @logger.catch()
+    def get_coin_position(self) -> tuple | str:
+        if self.exchange_name == 'BINANCE':
+            if self.exchange_type == 'FUTURES':
+                pass
+            elif self.exchange_type == 'SPOT':
+                pass
+        elif self.exchange_name == 'BYBIT':
+            if self.exchange_type == 'FUTURES':
+                pass
+            elif self.exchange_type == 'SPOT':
+                pass
+        else:
+            return ""
+
+    @logger.catch()
     def get_balance(self) -> dict | str:
         if self.exchange_name == 'BINANCE':
             if self.exchange_type == 'FUTURES':
@@ -33,10 +50,7 @@ class Client:
             elif self.exchange_type == 'SPOT':
                 return self._get_balance_spot_binance()
         elif self.exchange_name == 'BYBIT':
-            if self.exchange_type == 'FUTURES':
-                pass
-            elif self.exchange_type == 'SPOT':
-                pass
+            return self._get_balance_bybit()
 
     @logger.catch()
     def _get_positions_coin_um_futures_binance(self) -> tuple | str:
@@ -67,6 +81,15 @@ class Client:
                         f"error message: {error.error_message}")
             return error.error_message
 
+    @logger.catch()
+    def _get_balance_bybit(self) -> dict | str:
+        if self.exchange_type == 'FUTURES':
+            return get_balance_financing('USDT')
+        elif self.exchange_type == 'SPOT':
+            return get_balance_unified_trading('USDT')
+
 
 if __name__ == '__main__':
     logger.info('Running get_exchange_client_info.py from module binance_api')
+    # client = Client(exchange_name='BYBIT', exchange_type='FUTURES', coin_name='USDT')
+    # print(client.get_balance())

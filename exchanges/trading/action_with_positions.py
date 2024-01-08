@@ -1,6 +1,6 @@
 from loguru import logger
 
-from exchanges.client_info.client_info import Client
+from exchanges.client.client_info import Client
 from exchanges.trading.position import Position
 
 
