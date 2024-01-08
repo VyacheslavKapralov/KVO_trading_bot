@@ -51,7 +51,6 @@ def direction_determination(data: pd.DataFrame) -> str | tuple[str, str]:
 @logger.catch()
 def fractal_strategy(data_frame: pd.DataFrame, strategy_settings: dict) -> None | dict:
     # дописать функционал открытия ордера
-
     sent_order = {}
     data_frame = add_fractals(data_frame, strategy_settings['period'])
     direction = direction_determination(data_frame)

@@ -8,7 +8,7 @@ from telegram_api.handlers import commands, command_search_signal, command_arran
 
 async def on_startup(_):
     log_telegram_bot()
-    logger.info('Start KVO_EMA_Binance_bot')
+    logger.info('Start KVO_trading_bot')
 
 
 commands.register_handlers_commands(dp)
