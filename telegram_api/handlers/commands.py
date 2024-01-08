@@ -7,7 +7,7 @@ from telegram_api.handlers.keyboards import main_menu
 @logger.catch()
 async def command_start(message: types.Message):
     await message.answer(f"Добро пожаловать, {message.from_user.first_name}. "
-                         f"Я бот, умеющий взаимодействовать с биржей Binance.\n"
+                         f"Я бот, умеющий взаимодействовать с крипто-биржами Binance и Bybit.\n"
                          f"Нажми /search",
                          reply_markup=main_menu()
                          )
