@@ -15,14 +15,14 @@ class Order:
         self.coin_name = coin_name
 
     @logger.catch()
-    def new_order(self, *args):
+    def new_order(self, *args, **kwargs):
         match self.exchange_name, self.exchange_type:
             case 'BINANCE', 'FUTURES':
-                return self._new_order_um_futures_binance(*args)
+                return self._new_order_um_futures_binance(*args, **kwargs)
             case 'BINANCE', 'SPOT':
                 return self._new_order_spot_binance()
             case 'BYBIT', 'FUTURES':
-                return self._new_order_um_futures_bybit(*args)
+                return self._new_order_futures_bybit(*args, **kwargs)
             case 'BYBIT', 'SPOT':
                 pass
             case _:
@@ -89,7 +89,7 @@ class Order:
         count = 0
         while True:
             try:
-                return connect_um_futures_client().new_order(
+                return connect_um_futures_client().new_position(
                     symbol=self.coin_name,
                     side=side,
                     positionSide=position_side,
@@ -116,7 +116,7 @@ class Order:
         count = 0
         while True:
             try:
-                return connect_spot_client().new_order(
+                return connect_spot_client().new_position(
                     symbol=self.coin_name,
                     side=side,
                     type=type_position,
@@ -208,7 +208,8 @@ class Order:
             return error.error_message
 
     @logger.catch()
-    def _new_order_um_futures_bybit(self, side: str, qty: str, price: str):
+    def _new_order_futures_bybit(self, side: str, qty: str, price: str, order_id: str = None, take_profit: str = None,
+                                 stop_loss: str = None, stop_type: str = None):
         count = 3
         while count > 0:
             session = connect_bybit()
@@ -221,10 +222,14 @@ class Order:
                         orderType="Limit",
                         qty=qty,
                         price=price,
+                        takeProfit=take_profit,
+                        stopLoss=stop_loss,
                         timeInForce="GTC",
-                        orderLinkId="future-telebot",
+                        orderLinkId=order_id,
                         isLeverage=0,
-                        orderFilter="Order"
+                        orderFilter="Order",
+                        tpslMode='Full',
+                        slOrderType=stop_type
                     )
                 except InvalidRequestError as error:
                     logger.info(

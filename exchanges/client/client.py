@@ -84,7 +84,9 @@ class Client:
     @logger.catch()
     def _get_balance_bybit(self) -> dict | str:
         if self.exchange_type == 'FUTURES':
-            return get_balance_financing('USDT')
+            return get_balance_unified_trading('USDT')
+
+            # return get_balance_financing('USDT')
         elif self.exchange_type == 'SPOT':
             return get_balance_unified_trading('USDT')
 

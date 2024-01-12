@@ -18,6 +18,7 @@ def get_balance_unified_trading(coin: str):
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
         count -= 1
+    return f"Не удалось получить данные от биржи."
 
 
 @logger.catch()
@@ -34,6 +35,7 @@ def get_balance_financing(coin: str):
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
         count -= 1
+    return f"Не удалось получить данные от биржи."
 
 
 if __name__ == '__main__':

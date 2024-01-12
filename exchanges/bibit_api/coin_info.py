@@ -32,6 +32,7 @@ def get_tickers(exchange_type: str, symbol: str):
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
         count -= 1
+    return f"Не удалось получить данные от биржи."
 
 
 @logger.catch()
@@ -47,6 +48,7 @@ def get_orderbook(exchange_type: str, symbol: str):
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
         count -= 1
+    return f"Не удалось получить данные от биржи."
 
 
 @logger.catch()
@@ -62,6 +64,7 @@ def get_fee(exchange_type: str, symbol: str):
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
         count -= 1
+    return f"Не удалось получить данные от биржи."
 
 
 if __name__ == '__main__':
