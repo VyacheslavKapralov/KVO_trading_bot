@@ -11,14 +11,17 @@ from exchanges.bibit_api.connect_bybit import connect_bybit
 from exchanges.binance_api.connect_binance import connect_um_futures_client, connect_spot_client
 
 
-class Position(Client):
+class Position:
 
     def __init__(self, exchange_name: str, exchange_type: str, coin_name: str, strategy: str):
-        super().__init__(exchange_name, exchange_type, coin_name)
+        self.exchange_name = exchange_name
+        self.exchange_type = exchange_type
+        self.coin_name = coin_name
         self.strategy = strategy
 
     @logger.catch()
     def open_position(self, data: str | tuple, percentage_deposit: float) -> str | dict:
+
         if self.exchange_name == 'BINANCE':
             if self.exchange_type == 'FUTURES' and self.strategy == 'EMA':
                 return self._open_position_ema_futures_binance(data, percentage_deposit)

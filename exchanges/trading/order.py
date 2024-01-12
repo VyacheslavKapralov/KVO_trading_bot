@@ -6,86 +6,82 @@ from pybit.exceptions import InvalidRequestError
 
 from exchanges.bibit_api.connect_bybit import connect_bybit
 from exchanges.binance_api.connect_binance import connect_um_futures_client, connect_spot_client
-from exchanges.trading.position import Position
 
 
-class Order(Position):
-    def __init__(self):
-        super(Position, self).__init__()
+class Order:
+    def __init__(self, exchange_name: str, exchange_type: str, coin_name: str):
+        self.exchange_name = exchange_name
+        self.exchange_type = exchange_type
+        self.coin_name = coin_name
 
     @logger.catch()
     def new_order(self, *args):
-        if self.exchange_name == 'BINANCE':
-            if self.exchange_type == 'FUTURES':
-                return self._new_order_um_futures_binance(self, *args)
-            elif self.exchange_type == 'SPOT':
+        match self.exchange_name, self.exchange_type:
+            case 'BINANCE', 'FUTURES':
+                return self._new_order_um_futures_binance(*args)
+            case 'BINANCE', 'SPOT':
                 return self._new_order_spot_binance()
-        elif self.exchange_name == 'BYBIT':
-            if self.exchange_type == 'FUTURES':
-                return self._new_order_um_futures_bybit(self, *args)
-            elif self.exchange_type == 'SPOT':
+            case 'BYBIT', 'FUTURES':
+                return self._new_order_um_futures_bybit(*args)
+            case 'BYBIT', 'SPOT':
                 pass
-        else:
-            return ""
+            case _:
+                return ""
 
     @logger.catch()
     def get_all_orders(self):
-        if self.exchange_name == 'BINANCE':
-            if self.exchange_type == 'FUTURES':
+        match self.exchange_name, self.exchange_type:
+            case 'BINANCE', 'FUTURES':
                 return self._get_all_orders_um_futures_binance()
-            elif self.exchange_type == 'SPOT':
+            case 'BINANCE', 'SPOT':
                 return self._get_all_orders_spot_binance()
-        elif self.exchange_name == 'BYBIT':
-            if self.exchange_type == 'FUTURES':
+            case 'BYBIT', 'FUTURES':
                 pass
-            elif self.exchange_type == 'SPOT':
+            case 'BYBIT', 'SPOT':
                 pass
-        else:
-            return ""
+            case _:
+                return ""
 
     @logger.catch()
     def get_orders(self):
-        if self.exchange_name == 'BINANCE':
-            if self.exchange_type == 'FUTURES':
+        match self.exchange_name, self.exchange_type:
+            case 'BINANCE', 'FUTURES':
                 return self._get_orders_um_futures_binance()
-            elif self.exchange_type == 'SPOT':
-                return self._get_orders_spot()
-        elif self.exchange_name == 'BYBIT':
-            if self.exchange_type == 'FUTURES':
+            case 'BINANCE', 'SPOT':
+                return self._get_orders_spot_binance()
+            case 'BYBIT', 'FUTURES':
                 pass
-            elif self.exchange_type == 'SPOT':
+            case 'BYBIT', 'SPOT':
                 pass
-        else:
-            return ""
+            case _:
+                return ""
 
     def cancel_all_open_orders(self):
-        if self.exchange_name == 'BINANCE':
-            if self.exchange_type == 'FUTURES':
+        match self.exchange_name, self.exchange_type:
+            case 'BINANCE', 'FUTURES':
                 return self._cancel_all_open_orders_um_futures_binance()
-            elif self.exchange_type == 'SPOT':
+            case 'BINANCE', 'SPOT':
                 return self._cancel_all_open_orders_spot_binance()
-        elif self.exchange_name == 'BYBIT':
-            if self.exchange_type == 'FUTURES':
+            case 'BYBIT', 'FUTURES':
                 pass
-            elif self.exchange_type == 'SPOT':
+            case 'BYBIT', 'SPOT':
                 pass
-        else:
-            return ""
+            case _:
+                return ""
 
     @logger.catch()
     def cancel_open_order(self):
-        if self.exchange_name == 'BINANCE':
-            if self.exchange_type == 'FUTURES':
+        match self.exchange_name, self.exchange_type:
+            case 'BINANCE', 'FUTURES':
                 return self._cancel_open_order_um_futures_binance()
-            elif self.exchange_type == 'SPOT':
+            case 'BINANCE', 'SPOT':
                 return self._cancel_open_order_spot_binance()
-        elif self.exchange_name == 'BYBIT':
-            if self.exchange_type == 'FUTURES':
+            case 'BYBIT', 'FUTURES':
                 pass
-            elif self.exchange_type == 'SPOT':
+            case 'BYBIT', 'SPOT':
                 pass
-        else:
-            return ""
+            case _:
+                return ""
 
     @logger.catch()
     def _new_order_um_futures_binance(self, side: str, position_side: str, type_position: str, quantity: float,
@@ -203,7 +199,16 @@ class Order(Position):
             return error.error_message
 
     @logger.catch()
-    def _new_order_um_futures_bybit(self, side, qty, price):
+    def _get_orders_spot_binance(self) -> dict | str:
+        try:
+            return connect_spot_client().get_orders(symbol=self.coin_name, recvWindow=6000)
+        except ClientError as error:
+            logger.info(f"Found error status: {error.status_code}, error code: {error.error_code}, "
+                        f"error message: {error.error_message}")
+            return error.error_message
+
+    @logger.catch()
+    def _new_order_um_futures_bybit(self, side: str, qty: str, price: str):
         count = 3
         while count > 0:
             session = connect_bybit()
