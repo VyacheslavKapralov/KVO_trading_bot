@@ -13,9 +13,9 @@ def main_menu():
 @logger.catch()
 def menu_strategy():
     return InlineKeyboardMarkup(row_width=1).add(
-        InlineKeyboardButton(text='Intersection EMA and MA', callback_data='EMA'),
-        InlineKeyboardButton(text='Correction Fibonacci', callback_data='FIBO'),
-        InlineKeyboardButton(text='Smart Money Management', callback_data='SMM'),
+        # InlineKeyboardButton(text='Intersection EMA and MA', callback_data='EMA'),
+        # InlineKeyboardButton(text='Correction Fibonacci', callback_data='FIBO'),
+        # InlineKeyboardButton(text='Smart Money Management', callback_data='SMM'),
         InlineKeyboardButton(text='Fractals', callback_data='FRACTAL'),
     )
 
@@ -28,7 +28,7 @@ def menu_chancel():
 @logger.catch()
 def menu_exchange():
     return InlineKeyboardMarkup(row_width=2).row(
-        InlineKeyboardButton(text='BINANCE', callback_data='BINANCE'),
+        # InlineKeyboardButton(text='BINANCE', callback_data='BINANCE'),
         InlineKeyboardButton(text='BYBIT', callback_data='BYBIT'),
     )
 
@@ -37,7 +37,7 @@ def menu_exchange():
 def menu_exchange_type():
     return InlineKeyboardMarkup(row_width=2).row(
         InlineKeyboardButton(text='FUTURES', callback_data='FUTURES'),
-        InlineKeyboardButton(text='SPOT', callback_data='SPOT'),
+        # InlineKeyboardButton(text='SPOT', callback_data='SPOT'),
     )
 
 
@@ -97,6 +97,16 @@ def menu_price_stop():
         InlineKeyboardButton(text='В процентах от депозита', callback_data='percent'),
         InlineKeyboardButton(text='В USDT от цены входа', callback_data='usdt'),
         InlineKeyboardButton(text='В ATR равный периоду индикатора', callback_data='atr'),
+    )
+
+
+@logger.catch()
+def menu_rollback():
+    return InlineKeyboardMarkup(row_width=2).add(
+        InlineKeyboardButton(text='Применить откат в USDT', callback_data='usdt'),
+        InlineKeyboardButton(text='Применить откат в ATR', callback_data='atr'),
+        InlineKeyboardButton(text='Применить откат в процентах', callback_data='percent'),
+        InlineKeyboardButton(text='Не применять откат', callback_data='None'),
     )
 
 

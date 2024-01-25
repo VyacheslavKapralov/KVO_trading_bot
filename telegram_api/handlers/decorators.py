@@ -1,6 +1,6 @@
 from loguru import logger
 
-from exchanges.bibit_api.client_info import get_balance_unified_trading, get_balance_financing
+from exchanges.client.client import Client
 from telegram_api.handlers.keyboards import menu_chancel
 
 
@@ -34,15 +34,12 @@ def check_int(func):
 def deposit_verification(func):
     async def wrapper(message, state):
         async with state.proxy() as data:
-            if data['exchange_type'] == 'SPOT' or data['exchange_type'] == 'FUTURES':
-                client_depo = get_balance_unified_trading('USDT')
-            else:
-                client_depo = get_balance_financing('USDT')
+            client_depo = Client(data['exchange'], data['exchange_type']).get_balance
             data['client_depo'] = client_depo
-        if client_depo > 0:
+        if float(client_depo) > 0:
             await func(message, state)
         else:
-            await message.answer(f'На депозите нет свободных средств: {client_depo} USDT')
+            await message.answer(f'На депозите нет свободных средств: {client_depo} USDT', reply_markup=menu_chancel())
 
     return wrapper
 

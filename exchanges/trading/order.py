@@ -4,7 +4,7 @@ from loguru import logger
 from binance.error import ClientError
 from pybit.exceptions import InvalidRequestError
 
-from exchanges.bibit_api.connect_bybit import connect_bybit
+from exchanges.bybit_api.connect_bybit import connect_bybit
 from exchanges.binance_api.connect_binance import connect_um_futures_client, connect_spot_client
 
 
@@ -84,8 +84,9 @@ class Order:
                 return ""
 
     @logger.catch()
-    def _new_order_um_futures_binance(self, side: str, position_side: str, type_position: str, quantity: float,
-                                      time_in_force: str, price: float = None, stop: float = None) -> dict | str:
+    def _new_order_um_futures_binance(self, side: str, quantity: float, position_side: str = None,
+                                      type_position: str = 'LIMIT', time_in_force: str = 'GTC', price: float = None,
+                                      stop: float = None) -> dict | str:
         count = 0
         while True:
             try:

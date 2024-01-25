@@ -4,7 +4,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 
 from database.database import create_database
-from exchanges.bibit_api.coin_info import get_instrument_info
+from exchanges.bybit_api.coin_info import get_instrument_info_bybit
 from telegram_api.handlers.decorators import deposit_verification, check_float, price_verification, check_int, \
     validation_data, checking_feasibility_strategy
 from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, menu_ticker, menu_percentage, \
@@ -61,7 +61,7 @@ async def change_coin_name(callback: types.CallbackQuery, state: FSMContext):
     create_database(callback.data)
     async with state.proxy() as data:
         data['coin_name'] = callback.data
-        data['coin_info'] = get_instrument_info('spot', data['coin_name'])   # сделать выбор типа инструмента
+        data['coin_info'] = get_instrument_info_bybit('spot', data['coin_name'])   # сделать выбор типа инструмента
     await GridState.next()
     await callback.message.answer('Какой процент от свободного депозита использовать?', reply_markup=menu_percentage())
 

@@ -70,5 +70,24 @@ def fibonacci_expansion_down(data: pd.DataFrame):
     return data
 
 
+@logger.catch()
+def add_fractals_indicator(data: pd.DataFrame, period: int) -> pd.DataFrame:
+    data['Up_Fractal'] = False
+    data['Down_Fractal'] = False
+    data['Fractal_Price'] = None
+
+    for i in range(period, len(data) - period):
+        if (max(data['High'][i - period:i + period + 1]) == data['High'][i]
+                and pd.Series(data['High'][i - period:i + period + 1]).idxmax() == i):
+            data.at[i, 'Up_Fractal'] = True
+            data.at[i, 'Fractal_Price'] = data['High'][i]
+
+        elif (min(data['Low'][i - period:i + period + 1]) == data['Low'][i]
+              and pd.Series(data['Low'][i - period:i + period + 1]).idxmin() == i):
+            data.at[i, 'Down_Fractal'] = True
+            data.at[i, 'Fractal_Price'] = data['Low'][i]
+    return data
+
+
 if __name__ == '__main__':
     logger.info('Running add_indicators_to_dataframe.py from module binance_api')

@@ -7,15 +7,15 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from database.database import db_write, create_database
 from exchanges.client.client import Client
-from exchanges.trading.action_with_positions import action_choice
+from exchanges.trading.action_with_positions import launch_strategy
 from exchanges.working_with_data.time_frames_editing import get_timeout_response, get_waiting_time
 from strategies.signal_ema import output_signals_ema
+from strategies.signal_fractals import fractal_strategy
 from telegram_api.handlers.command_arrange_grid import command_chancel
-from telegram_api.handlers.decorators import check_int
+from telegram_api.handlers.decorators import check_int, deposit_verification, check_float
 from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, menu_ticker, menu_time_frame, \
-    menu_percentage, menu_chancel, menu_strategy, menu_price_stop
+    menu_percentage, menu_chancel, menu_strategy, menu_price_stop, menu_rollback
 from telegram_api.handlers.state_machine import EmaStrategyState, StrategyState, FractalStrategyState
-
 
 _variables = {'ignore_message': False, 'interrupt': False}
 
@@ -24,6 +24,7 @@ def ignore_check(func):
     async def wrapper(message, state):
         if not _variables['ignore_message']:
             return await func(message, state)
+
     return wrapper
 
 
@@ -65,16 +66,17 @@ async def change_exchange_type(callback: types.CallbackQuery, state: FSMContext)
     async with state.proxy() as strategy_settings:
         strategy_settings['exchange_type'] = callback.data.upper()
     await StrategyState.next()
-    await callback.message.answer('Введите тикер инструмента', reply_markup=menu_ticker())
+    await callback.message.answer('Выберите тикер инструмента', reply_markup=menu_ticker())
 
 
 @logger.catch()
+# @deposit_verification
 async def change_coin_name(callback: types.CallbackQuery, state: FSMContext):
     create_database(callback.data)
     async with state.proxy() as strategy_settings:
         strategy_settings['coin_name'] = callback.data
     await StrategyState.next()
-    await callback.message.answer('Введите тайм-фрейм данных', reply_markup=menu_time_frame())
+    await callback.message.answer('Выберите тайм-фрейм данных', reply_markup=menu_time_frame())
 
 
 @logger.catch()
@@ -88,15 +90,14 @@ async def change_time_frame(callback: types.CallbackQuery, state: FSMContext):
 @logger.catch()
 async def change_percentage_deposit(callback: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as strategy_settings:
-        strategy_settings['percentage_deposit'] = callback.data
+        strategy_settings['percentage_deposit'] = int(callback.data)
     if strategy_settings['strategy'] == 'EMA':
-        await EmaStrategyState.stop_line.set()
         await callback.message.answer('Введите период стоп линии основанной на экспоненциальной скользящей средней',
                                       reply_markup=menu_chancel())
+        await EmaStrategyState.stop_line.set()
     elif strategy_settings['strategy'] == 'FRACTAL':
+        await callback.message.answer('Задайте период фракталов', reply_markup=menu_chancel())
         await FractalStrategyState.period.set()
-        await callback.message.answer('Задайте период фракталов')
-
     else:
         await callback.message.answer('В разработке...')
         await command_chancel(callback.message, state)
@@ -134,15 +135,39 @@ async def get_ma_period(message: types.Message, state: FSMContext):
 async def get_period_fractal(message: types.Message, state: FSMContext):
     async with state.proxy() as strategy_settings:
         strategy_settings['period'] = int(message.text)
+    await message.answer('Нужно применять откат цены от цены последнего фрактала?', reply_markup=menu_rollback())
     await FractalStrategyState.next()
+
+
+@logger.catch()
+async def get_rollback_fractal(callback: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as strategy_settings:
+        strategy_settings['rollback'] = callback.data
+    if callback.data == 'usdt':
+        await callback.message.answer('Введите на сколько USDT планируется откат', reply_markup=menu_chancel())
+        await FractalStrategyState.next()
+    elif callback.data == 'percent':
+        await callback.message.answer('Введите на сколько процентов планируется откат', reply_markup=menu_chancel())
+        await FractalStrategyState.next()
+    else:
+        await callback.message.answer('В чем измерять размер stop-loss?', reply_markup=menu_price_stop())
+        await FractalStrategyState.stop_loss_selection.set()
+
+
+@logger.catch()
+@check_float
+async def get_rollback_num_fractal(message: types.Message, state: FSMContext):
+    async with state.proxy() as strategy_settings:
+        strategy_settings['rollback_num'] = float(message.text)
     await message.answer('В чем измерять размер stop-loss?', reply_markup=menu_price_stop())
+    await FractalStrategyState.next()
 
 
 @logger.catch()
 async def stop_loss_selection_fractal(callback: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as strategy_settings:
         strategy_settings['stop_loss_selection'] = callback.data
-        strategy_settings['stop_loss'] = f"atr = {strategy_settings['period']}"
+        strategy_settings['stop_loss'] = f"atr period = {strategy_settings['period']}"
     if callback.data == 'percent' or callback.data == 'usdt':
         await callback.message.answer('Введите размер stop-loss')
         return await FractalStrategyState.stop_loss.set()
@@ -166,7 +191,7 @@ async def take_profit_selection_fractal(callback: types.CallbackQuery, state: FS
         await callback.message.answer('Введите размер take-profit')
         return await FractalStrategyState.take_profit.set()
     await callback.message.answer('Введите множитель (целое число) значения ATR для установки take-profit')
-    await FractalStrategyState.multiplicity_atr()
+    await FractalStrategyState.multiplicity_atr.set()
 
 
 @logger.catch()
@@ -200,8 +225,6 @@ async def add_client(message: types.Message, state: FSMContext):
 
 @logger.catch()
 async def search_ema_signal(message, state, strategy_settings):
-    timeout_seconds = get_timeout_response(strategy_settings['time_frame'])
-    logger.info(f"Старт поиска сигнала по стратегии {strategy_settings['strategy']}. Период: {timeout_seconds} сек")
     current_position_last = {'position': None}
     while not _variables['interrupt']:
         now_time = datetime.datetime.now()
@@ -220,14 +243,7 @@ async def search_ema_signal(message, state, strategy_settings):
         )
         if flag:
             await sending_signal_message(strategy_settings, message, signal)
-            success, order = action_choice(
-                exchange=strategy_settings['exchange'],
-                strategy=strategy_settings['strategy'],
-                symbol=strategy_settings['coin_name'],
-                exchange_type=strategy_settings['exchange_type'],
-                signal=signal,
-                percentage_deposit=float(strategy_settings['percentage_deposit']),
-            )
+            success, order = launch_strategy(strategy_settings)
             logger.info(f"Ордер: {order}")
         else:
             await message.answer(order)
@@ -238,16 +254,16 @@ async def search_ema_signal(message, state, strategy_settings):
 
 @logger.catch()
 async def search_fractal_signal(message, state, strategy_settings):
-    timeout_seconds = get_timeout_response(strategy_settings['time_frame'])
-    logger.info(f"Старт поиска сигнала по стратегии {strategy_settings['strategy']}. Период: {timeout_seconds} сек")
     client = Client(strategy_settings['exchange'], strategy_settings['exchange_type'], strategy_settings['coin_name'])
-    current_position_last = client.get_coin_position()
+    await sending_start_fractal_strategy(strategy_settings, message)
     while not _variables['interrupt']:
+        current_position_last = client.get_coin_position()
         now_time = datetime.datetime.now()
         waiting_time_seconds = get_waiting_time(now_time, strategy_settings['time_frame'])
-        await asyncio.sleep(waiting_time_seconds)
-        await sending_start_fractal_strategy(strategy_settings, message)
-        success, order = False, dict()
+        if current_position_last:
+            await asyncio.sleep(waiting_time_seconds)
+            continue
+        success, order = fractal_strategy(strategy_settings)
 
         if success:
             await message.answer(f"Размещен лимитный ордер:\n"
@@ -260,12 +276,13 @@ async def search_fractal_signal(message, state, strategy_settings):
                 strategy=strategy_settings['strategy'],
                 ticker=strategy_settings['coin_name'],
                 period=strategy_settings['time_frame'],
-                signal='',
-                position=f"Price: {order.get('price')}; quantity: {order.get('origQty')}; "
-                         f"type: {order.get('type')}; stop_price: {order.get('stopPrice')}"
+                signal=success,
+                position=order
             )
-        else:
+        elif isinstance(order, str):
             await message.answer(order)
+
+        await asyncio.sleep(waiting_time_seconds)
 
     await command_chancel(message, state)
     logger.info("Поиск сигналов остановлен.")
@@ -273,6 +290,8 @@ async def search_fractal_signal(message, state, strategy_settings):
 
 @logger.catch()
 async def sending_start_message(data, message):
+    timeout_seconds = get_timeout_response(data['time_frame'])
+    logger.info(f"Старт поиска сигнала по стратегии {data['strategy']}. Период: {timeout_seconds} сек")
     await message.answer(f"Начинаю поиск сигналов на бирже {data['exchange']}\n"
                          f"По стратегии {data['strategy']}\n"
                          f"Параметры поиска:\n"
@@ -323,6 +342,8 @@ def register_handlers_commands_search_signal(dp: Dispatcher):
     dp.register_message_handler(get_ema_period, state=EmaStrategyState.ema)
     dp.register_message_handler(get_ma_period, state=EmaStrategyState.ma)
     dp.register_message_handler(get_period_fractal, state=FractalStrategyState.period)
+    dp.register_callback_query_handler(get_rollback_fractal, state=FractalStrategyState.rollback)
+    dp.register_message_handler(get_rollback_num_fractal, state=FractalStrategyState.rollback_num)
     dp.register_callback_query_handler(stop_loss_selection_fractal, state=FractalStrategyState.stop_loss_selection)
     dp.register_message_handler(get_stop_loss_fractal, state=FractalStrategyState.stop_loss)
     dp.register_callback_query_handler(take_profit_selection_fractal, state=FractalStrategyState.take_profit_selection)

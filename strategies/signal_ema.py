@@ -1,7 +1,7 @@
 from loguru import logger
 
-from exchanges.working_with_data.add_dataframe import add_dataframe_binance, adding_dataframe_ema, \
-    get_dataframe_pandas_binance
+from exchanges.binance_api.klines_without_apikey import get_klines_futures_without_api
+from exchanges.working_with_data.add_dataframe import adding_dataframe_ema, get_dataframe_pandas_binance
 
 
 @logger.catch()
@@ -31,7 +31,7 @@ def add_position(data, period_stop: int, period_fast: int, period_slow: int) -> 
 def output_signals_ema(exchange: str, exchange_type: str, symbol: str, time_frame: str, period_stop: int,
                        period_fast: int, period_slow: int, current_position_last: dict) -> tuple[bool, str | None]:
     if exchange == 'BINANCE':
-        data = add_dataframe_binance(exchange_type, symbol, time_frame, period_stop)
+        data = get_klines_futures_without_api(symbol, time_frame)
         data = get_dataframe_pandas_binance(data)
     else:
         data = ''

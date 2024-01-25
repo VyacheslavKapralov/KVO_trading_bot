@@ -19,6 +19,8 @@ class EmaStrategyState(StatesGroup):
 
 class FractalStrategyState(StatesGroup):
     period = State()
+    rollback = State()
+    rollback_num = State()
     stop_loss_selection = State()
     stop_loss = State()
     take_profit_selection = State()

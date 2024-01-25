@@ -2,7 +2,7 @@ import asyncio
 
 from loguru import logger
 
-from exchanges.bibit_api.coin_info import get_tickers
+from exchanges.bybit_api.coin_info import get_tickers_bybit
 
 
 def open_order():
@@ -11,7 +11,7 @@ def open_order():
 
 @logger.catch()
 def get_current_price(exchange_type: str, symbol: str) -> float:
-    return float(get_tickers(exchange_type, symbol)['result']['list'][0].get('lastPrice'))
+    return float(get_tickers_bybit(exchange_type, symbol)['result']['list'][0].get('lastPrice'))
 
 
 def waiting_start_grid(exchange_type: str, symbol: str, start_price: float):

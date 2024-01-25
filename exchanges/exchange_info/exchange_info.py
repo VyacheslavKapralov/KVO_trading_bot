@@ -4,7 +4,7 @@ from exchanges.binance_api.connect_binance import connect_um_futures_client
 
 
 @logger.catch()
-def exchange_info_um_futures() -> dict | str:
+def exchange_info_um_futures_binance() -> dict | str:
     try:
         return connect_um_futures_client().exchange_info()
     except ClientError as error:

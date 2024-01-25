@@ -29,7 +29,8 @@ async def command_history(message: types.Message):
 @logger.catch()
 def register_handlers_commands(dp: Dispatcher):
     dp.register_message_handler(command_start, commands=['start', 'старт', 'info', 'инфо', 'help', 'помощь'])
-    dp.register_message_handler(command_history, commands=['history', 'история'])        #   нужно исправить вывод истории: разные стратегии должны выводить разную информацию.
+    # dp.register_message_handler(command_history, commands=['history', 'история'])
+    # ToDO: нужно исправить вывод истории: разные стратегии должны выводить разную информацию.
 
 
 if __name__ == '__main__':
