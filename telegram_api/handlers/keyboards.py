@@ -1,5 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, InlineKeyboardButton, \
-    InlineKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 from loguru import logger
 
 
@@ -12,6 +11,16 @@ def main_menu():
 
 
 @logger.catch()
+def menu_strategy():
+    return InlineKeyboardMarkup(row_width=1).add(
+        # InlineKeyboardButton(text='Intersection EMA and MA', callback_data='EMA'),
+        # InlineKeyboardButton(text='Correction Fibonacci', callback_data='FIBO'),
+        # InlineKeyboardButton(text='Smart Money Management', callback_data='SMM'),
+        InlineKeyboardButton(text='Fractals', callback_data='FRACTAL'),
+    )
+
+
+@logger.catch()
 def menu_chancel():
     return ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton('/chancel'))
 
@@ -19,8 +28,16 @@ def menu_chancel():
 @logger.catch()
 def menu_exchange():
     return InlineKeyboardMarkup(row_width=2).row(
+        # InlineKeyboardButton(text='BINANCE', callback_data='BINANCE'),
+        InlineKeyboardButton(text='BYBIT', callback_data='BYBIT'),
+    )
+
+
+@logger.catch()
+def menu_exchange_type():
+    return InlineKeyboardMarkup(row_width=2).row(
         InlineKeyboardButton(text='FUTURES', callback_data='FUTURES'),
-        InlineKeyboardButton(text='SPOT', callback_data='SPOT')
+        # InlineKeyboardButton(text='SPOT', callback_data='SPOT'),
     )
 
 
@@ -36,7 +53,7 @@ def menu_ticker():
         InlineKeyboardButton(text='SOLUSDT', callback_data='SOLUSDT'),
         InlineKeyboardButton(text='ATOMUSDT', callback_data='ATOMUSDT'),
         InlineKeyboardButton(text='LINKUSDT', callback_data='LINKUSDT'),
-        InlineKeyboardButton(text='MKRUSDT', callback_data='MKRUSDT')
+        InlineKeyboardButton(text='MKRUSDT', callback_data='MKRUSDT'),
     )
 
 
@@ -55,7 +72,7 @@ def menu_time_frame():
         InlineKeyboardButton(text='12 hours', callback_data='12h'),
         InlineKeyboardButton(text='1 day', callback_data='1d'),
         InlineKeyboardButton(text='1 week', callback_data='1w'),
-        # InlineKeyboardButton(text='1 month', callback_data='1M')
+        # InlineKeyboardButton(text='1 month', callback_data='1M'),
     )
 
 
@@ -71,6 +88,25 @@ def menu_percentage():
         InlineKeyboardButton(text='50', callback_data='50'),
         InlineKeyboardButton(text='75', callback_data='75'),
         InlineKeyboardButton(text='100', callback_data='100'),
+    )
+
+
+@logger.catch()
+def menu_price_stop():
+    return InlineKeyboardMarkup(row_width=2).add(
+        InlineKeyboardButton(text='В процентах от депозита', callback_data='percent'),
+        InlineKeyboardButton(text='В USDT от цены входа', callback_data='usdt'),
+        InlineKeyboardButton(text='В ATR равный периоду индикатора', callback_data='atr'),
+    )
+
+
+@logger.catch()
+def menu_rollback():
+    return InlineKeyboardMarkup(row_width=2).add(
+        InlineKeyboardButton(text='Применить откат в USDT', callback_data='usdt'),
+        InlineKeyboardButton(text='Применить откат в ATR', callback_data='atr'),
+        InlineKeyboardButton(text='Применить откат в процентах', callback_data='percent'),
+        InlineKeyboardButton(text='Не применять откат', callback_data='None'),
     )
 
 

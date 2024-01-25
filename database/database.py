@@ -17,10 +17,9 @@ def create_database(name_tabl: str):
                         date_time TEXT,
                         user_name TEXT,
                         exchange TEXT,
+                        exchange_type TEXT,
+                        strategy TEXT,
                         period TEXT,
-                        trend INTEGER,
-                        EMA INTEGER,
-                        MA INTEGER,
                         signal TEXT,
                         position TEXT
                         )""")
@@ -30,7 +29,7 @@ def create_database(name_tabl: str):
 
 
 @logger.catch()
-def db_write(date_time: str, user_name: str, exchange: str, ticker: str, period: str, trend: int, ema: int, ma: int,
+def db_write(date_time: str, user_name: str, exchange: str, exchange_type: str, strategy: str, ticker: str, period: str,
              signal: str, position: str):
     connect = connect_database()
     cursor = connect.cursor()
@@ -40,15 +39,14 @@ def db_write(date_time: str, user_name: str, exchange: str, ticker: str, period:
         'date_time,'
         'user_name,'
         'exchange,'
+        'exchange_type,'
+        'strategy,'
         'period,'
-        'trend,'
-        'EMA,'
-        'MA,'
         'signal,'
         'position'
         ')'
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        (date_time, user_name, exchange, period, trend, ema, ma, signal, position)
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        (date_time, user_name, exchange, exchange_type, strategy, period, signal, position)
     )
     connect.commit()
     connect.close()
