@@ -8,8 +8,13 @@ load_dotenv()
 
 
 class BinanceSettings(BaseSettings):
-    api_key: SecretStr = os.getenv('API_KEY', None)
-    secret_key: SecretStr = os.getenv('SECRET_KEY', None)
+    api_key: SecretStr = os.getenv('BINANCE_API_KEY', None)
+    secret_key: SecretStr = os.getenv('BINANCE_SECRET_KEY', None)
+
+
+class BybitSettings(BaseSettings):
+    api_key: SecretStr = os.getenv('BYBIT_API_KEY', None)
+    secret_key: SecretStr = os.getenv('BYBIT_SECRET_KEY', None)
 
 
 class BotSettings(BaseSettings):

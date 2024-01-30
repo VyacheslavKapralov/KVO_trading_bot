@@ -8,8 +8,7 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 @logger.catch()
 def connect():
     """
-    connect() - эта функция используется для установления соединения с Telegram-ботом.
-    Аргументы: Нет.
+    Функция используется для установления соединения с Telegram-ботом.
     Возвращаемое значение: bott, dispatcher - два объекта для работы с ботом и диспетчером.
     """
 
