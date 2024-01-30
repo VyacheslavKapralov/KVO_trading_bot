@@ -20,16 +20,17 @@ def find_last_fractals(data_frame: pd.DataFrame, name_colum: str, quantity: int)
 
 
 @logger.catch()
-def direction_determination(data: pd.DataFrame) -> tuple[str, float] | dict[str: float]:  # ToDO: дописать еще условий для определения направления позиции
+def direction_determination(data: pd.DataFrame):  # ToDO: дописать еще условий для определения направления позиции
     highs = find_last_fractals(data, 'Up_Fractal', 2)
     downs = find_last_fractals(data, 'Down_Fractal', 2)
+    logger.info(f"\nhighs - {highs}\ndowns - {downs}")
     try:
         if highs[1] >= highs[0] and downs[1] >= downs[0]:
             return  # {'Buy': downs[1], 'Sell': highs[1]}
         elif highs[0] > highs[1] and downs[0] >= downs[1]:
-            return tuple('Buy', downs[1])
+            return 'Buy', downs[1]
         elif highs[0] <= highs[1] and downs[0] < downs[1]:
-            return tuple('Sell', highs[1])
+            return 'Sell', highs[1]
     except IndexError as error:
         return
 
@@ -38,6 +39,7 @@ def direction_determination(data: pd.DataFrame) -> tuple[str, float] | dict[str:
 def signal_open_position(data: pd.DataFrame, side: str, price_indicator: float) -> bool:
     high = data.tail(1)['High'].values[0]
     low = data.tail(1)['Low'].values[0]
+    logger.info(f"\nhigh - {high}\nlow - {low}\nprice_indicator - {price_indicator}")
 
     if side == 'Sell' and high > price_indicator:
         return True
@@ -82,25 +84,28 @@ def fractal_strategy(strategy_settings: dict) -> [bool, None | str | dict]:
     # logger.info(f"add_fractals_indicator - \n{data_frame}")
 
     direction = direction_determination(data_frame)
-    # logger.info(f"direction - {direction}")
+    logger.info(f"direction - {direction}")
     if not direction:
         return False, None
 
-    if not signal_open_position(data_frame, direction[0], direction[1]):
+    signal = signal_open_position(data_frame, direction[0], direction[1])
+    logger.info(f"signal - {signal}")
+    
+    if not signal:
         return False, None
 
     data_frame = add_average_true_range_period(data_frame, strategy_settings['period'])
     # logger.info(f"add_average_true_range_period - \n{data_frame}")
 
     open_position_price = get_open_position_price(data_frame, direction[0], strategy_settings)
-    # logger.info(f"open_position_price - {open_position_price}")
+    logger.info(f"open_position_price - {open_position_price}")
 
     if not open_position_price:
         return False, f"Не удалось рассчитать цену открытия ордера: {open_position_price}"
 
     balance_client = Client(strategy_settings['exchange'], strategy_settings['exchange_type'],
                             strategy_settings['coin_name']).get_balance()
-    # logger.info(f"balance_client - {balance_client}")
+    logger.info(f"balance_client - {balance_client}")
 
     if isinstance(balance_client, str):
         return False, f"Не удалось получить баланс клиента.\nОтвет сервера: {balance_client}"
@@ -122,7 +127,7 @@ def fractal_strategy(strategy_settings: dict) -> [bool, None | str | dict]:
 
     min_lot = coin_info["result"]['list'][0]['lotSizeFilter']['minOrderQty']
     volume = get_largest_volume(balance_client, min_lot, strategy_settings['percentage_deposit'], open_position_price)
-    # logger.info(f"volume - {volume}")
+    logger.info(f"volume - {volume}")
     if isinstance(volume, str):
         return False, volume
 
@@ -177,8 +182,11 @@ def fractal_strategy(strategy_settings: dict) -> [bool, None | str | dict]:
     position = Position(strategy_settings['exchange'], strategy_settings['exchange_type'],
                         strategy_settings['coin_name'])
     for elem in direction:
-        logger.info(f"order - {elem, price_round, stop_loss_round, take_profit_round}")
-        sent_order.update(position.open_position((elem, price_round, stop_loss_round, take_profit_round)))
+        logger.info(f"order - {elem, price_round, volume, stop_loss_round, take_profit_round}")
+        position = position.open_position((elem, price_round, volume, stop_loss_round, take_profit_round))
+        if isinstance(position, str):
+            return False, position
+        sent_order.update(position)
     return True, sent_order
 
 

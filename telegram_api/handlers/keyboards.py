@@ -78,7 +78,7 @@ def menu_time_frame():
 
 @logger.catch()
 def menu_percentage():
-    return InlineKeyboardMarkup(row_width=3).add(
+    return InlineKeyboardMarkup(row_width=4).add(
         InlineKeyboardButton(text='2', callback_data='2'),
         InlineKeyboardButton(text='3', callback_data='3'),
         InlineKeyboardButton(text='5', callback_data='5'),
@@ -93,7 +93,7 @@ def menu_percentage():
 
 @logger.catch()
 def menu_price_stop():
-    return InlineKeyboardMarkup(row_width=2).add(
+    return InlineKeyboardMarkup(row_width=1).add(
         InlineKeyboardButton(text='В процентах от депозита', callback_data='percent'),
         InlineKeyboardButton(text='В USDT от цены входа', callback_data='usdt'),
         InlineKeyboardButton(text='В ATR равный периоду индикатора', callback_data='atr'),
@@ -102,7 +102,7 @@ def menu_price_stop():
 
 @logger.catch()
 def menu_rollback():
-    return InlineKeyboardMarkup(row_width=2).add(
+    return InlineKeyboardMarkup(row_width=1).add(
         InlineKeyboardButton(text='Применить откат в USDT', callback_data='usdt'),
         InlineKeyboardButton(text='Применить откат в ATR', callback_data='atr'),
         InlineKeyboardButton(text='Применить откат в процентах', callback_data='percent'),

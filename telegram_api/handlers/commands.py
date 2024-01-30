@@ -3,6 +3,14 @@ from loguru import logger
 from database.database import db_read
 from telegram_api.handlers.keyboards import main_menu
 
+commands_list = [
+    types.BotCommand(command='start', description='Запустить бота'),
+    types.BotCommand(command='info', description='Информация о боте'),
+    types.BotCommand(command='help', description='Помощь в работе с ботом'),
+    types.BotCommand(command='history', description='Запустить поиск сигналов'),
+    # types.BotCommand(command='search', description='Запустить поиск сигналов'),
+]
+
 
 @logger.catch()
 async def command_start(message: types.Message):

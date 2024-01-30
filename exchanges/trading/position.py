@@ -12,16 +12,16 @@ class Position:
         self.coin_name = coin_name
 
     @logger.catch()
-    def open_position(self, data: str | tuple) -> str | dict:
+    def open_position(self, parameters: str | tuple) -> str | dict:
         match self.exchange_name, self.exchange_type:
             case 'BINANCE', 'FUTURES':
-                return self._open_position_futures_binance(data)
+                return self._open_position_futures_binance(parameters)
             case 'BINANCE', 'SPOT':
-                return self._open_position_spot_binance(data)
+                return self._open_position_spot_binance(parameters)
             case 'BYBIT', 'FUTURES':
-                return self._open_position_futures_bybit(data)
+                return self._open_position_futures_bybit(parameters)
             case 'BYBIT', 'SPOT':
-                return self._open_position_spot_bybit(data)
+                return self._open_position_spot_bybit(parameters)
             case _:
                 return ""
 
