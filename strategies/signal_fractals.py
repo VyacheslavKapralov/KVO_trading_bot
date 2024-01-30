@@ -25,10 +25,10 @@ def direction_determination(data: pd.DataFrame) -> dict:
     downs = find_last_fractals(data, 'Down_Fractal', 3)
     logger.info(f"\nhighs - {highs}\ndowns - {downs}")
     try:
-        if highs[0] > highs[1] and downs[0] >= downs[1]:
-            return {'Buy': downs[1]}
-        elif highs[0] <= highs[1] and downs[0] < downs[1]:
-            return {'Sell': highs[1]}
+        if highs[1] < highs[2] and downs[1] <= downs[2]:
+            return {'Buy': downs[2]}
+        elif highs[1] >= highs[2] and downs[1] > downs[2]:
+            return {'Sell': highs[2]}
         elif highs[2] >= highs[1] >= highs[0] and downs[2] >= downs[1] >= downs[0]:
             return {'Buy': downs[2], 'Sell': highs[2]}
     except IndexError:
@@ -51,9 +51,9 @@ def signal_open_position(data: pd.DataFrame, direction: dict) -> list:
 
 @logger.catch()
 def get_open_position_price(data: pd.DataFrame, side: str, strategy_settings: dict) -> float | None:
-    logger.info(f"Down - {find_last_fractals(data, 'Down_Fractal', 1)[0]}")
-    logger.info(f"Up - {find_last_fractals(data, 'Up_Fractal', 1)[0]}")
-    logger.info(f"rollback - {strategy_settings['rollback']}")
+    logger.info(f"\nDown - {find_last_fractals(data, 'Down_Fractal', 1)[0]}"
+                f"\nUp - {find_last_fractals(data, 'Up_Fractal', 1)[0]}"
+                f"\nrollback - {strategy_settings['rollback']}")
 
     match strategy_settings['rollback'], side:
         case 'usdt', 'Buy':
@@ -78,7 +78,7 @@ def get_open_position_price(data: pd.DataFrame, side: str, strategy_settings: di
 
 @logger.catch()
 def calculation_stop_take_usd(balance_client: float, data_frame: pd.DataFrame, strategy_settings: dict,
-                              volume: float) -> [float, float] | str:
+                              volume: float) -> [float | None, float | None]:
     match strategy_settings['stop_loss_selection'], strategy_settings['take_profit_selection']:
         case 'atr', 'atr':
             stop_loss_usd = data_frame[f"ATR_{strategy_settings['period']}"].iloc[-1]
@@ -146,19 +146,15 @@ def calculation_fee(price_round: float, strategy_settings: dict, volume: float) 
 
 
 @logger.catch()
-def open_order(direction: tuple, price_round: float, stop_loss_round: float, strategy_settings: dict,
+def open_order(price_round: float, side: str, stop_loss_round: float, strategy_settings: dict,
                take_profit_round: float, volume: float) -> [bool, str | dict]:
-    sent_order = {}
     position = Position(strategy_settings['exchange'], strategy_settings['exchange_type'],
                         strategy_settings['coin_name'])
-
-    for elem in direction:
-        logger.info(f"order - {elem, price_round, volume, stop_loss_round, take_profit_round}")
-        position = position.open_position((elem, price_round, volume, stop_loss_round, take_profit_round))
-        if isinstance(position, str):
-            return False, position
-        sent_order.update(position)
-    return True, sent_order
+    logger.info(f"order - {side, price_round, volume, stop_loss_round, take_profit_round}")
+    order = position.open_position((side, price_round, volume, stop_loss_round, take_profit_round))
+    if isinstance(position, str):
+        return False, order
+    return True, order
 
 
 @logger.catch()
@@ -192,7 +188,7 @@ def get_orders_list(balance_client: float, coin_info: dict, data_frame: pd.DataF
         price_round = str(round(open_position_price, rounding_accuracy_price))
         stop_loss_round = str(round(stop_loss, rounding_accuracy_price))
         take_profit_round = str(round(take_profit, rounding_accuracy_price))
-        orders.append(open_order(side, price_round, stop_loss_round, strategy_settings, take_profit_round, volume))
+        orders.append(open_order(price_round, side, stop_loss_round, strategy_settings, take_profit_round, volume))
     return True, orders
 
 
@@ -227,6 +223,7 @@ def fractal_strategy(strategy_settings: dict) -> [bool, None | str | dict]:
                       f"Ответ сервера: {coin_info}"
 
     min_lot = coin_info["result"]['list'][0]['lotSizeFilter']['minOrderQty']
+    logger.info(f"min_lot - {min_lot}")
 
     return get_orders_list(balance_client, coin_info, data_frame, direction, min_lot, strategy_settings)
 
