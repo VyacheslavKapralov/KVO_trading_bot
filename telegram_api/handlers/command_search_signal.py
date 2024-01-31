@@ -17,12 +17,15 @@ from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, m
     menu_percentage, menu_chancel, menu_strategy, menu_price_stop, menu_rollback
 from telegram_api.handlers.state_machine import EmaStrategyState, StrategyState, FractalStrategyState
 
-_variables = {'ignore_message': False, 'interrupt': False}
+# _variables = {'ignore_message': False, 'interrupt': False}
+IGNORE_MESSAGE = False
+INTERRUPT = False
 
 
 def ignore_check(func):
     async def wrapper(message, state):
-        if not _variables['ignore_message']:
+        global IGNORE_MESSAGE
+        if not IGNORE_MESSAGE:
             return await func(message, state)
 
     return wrapper
@@ -30,17 +33,39 @@ def ignore_check(func):
 
 @logger.catch()
 async def command_chancel(message: types.Message, state: FSMContext):
+    global INTERRUPT
+    INTERRUPT = True
     current_state = await state.get_state()
     if current_state:
         await state.finish()
         logger.info("Получена команда на остановку бота.")
-        _variables['interrupt'] = True
         await message.answer('Остановка бота.')
 
 
 @logger.catch()
-async def command_search_signal(message: types.Message):
-    _variables = {'ignore_message': False, 'interrupt': False}
+async def go_back_to_previous_state(state: FSMContext):
+    prev_state = await state.get_state()
+    if prev_state:
+        await state.set_state(prev_state)
+
+
+@logger.catch()
+async def command_new_bot(message: types.Message, state: FSMContext):
+    prev_state = await state.get_state()
+    if prev_state:
+        await state.finish()
+        await message.answer('Запускаю еще одного бота.')
+    else:
+        await command_search_signal(message, state)
+
+
+@logger.catch()
+async def command_search_signal(message: types.Message, state: FSMContext):
+    await state.reset_state()
+    global IGNORE_MESSAGE, INTERRUPT
+    IGNORE_MESSAGE = False
+    INTERRUPT = False
+    # _variables = {'ignore_message': False, 'interrupt': False}
     await StrategyState.strategy.set()
     await message.answer('Выберите стратегию', reply_markup=menu_strategy())
 
@@ -66,7 +91,7 @@ async def change_exchange_type(callback: types.CallbackQuery, state: FSMContext)
     async with state.proxy() as strategy_settings:
         strategy_settings['exchange_type'] = callback.data.upper()
     await StrategyState.coin_name.set()
-    await callback.message.answer('Выберите тикер инструмента', reply_markup=menu_chancel())
+    await callback.message.answer('Введите тикер инструмента', reply_markup=menu_chancel())
 
 
 @logger.catch()
@@ -214,9 +239,11 @@ async def get_take_profit_fractal(message: types.Message, state: FSMContext):
 
 @logger.catch()
 async def add_client(message: types.Message, state: FSMContext):
-    _variables['ignore_message'] = True
+    global IGNORE_MESSAGE
+    IGNORE_MESSAGE = True
     async with state.proxy() as strategy_settings:
         await sending_start_message(strategy_settings, message)
+    await state.finish()
     if strategy_settings['strategy'] == 'EMA':
         await search_ema_signal(message, state, strategy_settings)
     elif strategy_settings['strategy'] == 'FRACTAL':
@@ -226,7 +253,8 @@ async def add_client(message: types.Message, state: FSMContext):
 @logger.catch()
 async def search_ema_signal(message, state, strategy_settings):
     current_position_last = {'position': None}
-    while not _variables['interrupt']:
+    global INTERRUPT
+    while not INTERRUPT:
         now_time = datetime.datetime.now()
         waiting_time_seconds = get_waiting_time(now_time, strategy_settings['time_frame'])
         await asyncio.sleep(waiting_time_seconds)
@@ -246,6 +274,7 @@ async def search_ema_signal(message, state, strategy_settings):
             success, order = launch_strategy(strategy_settings)
             if success:
                 logger.info(f"Ордер: {order}")
+                await message.answer(f"Открыт ордер: \n{order}")
                 db_write(
                     date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
                     user_name=message.from_user.username,
@@ -257,18 +286,19 @@ async def search_ema_signal(message, state, strategy_settings):
                     signal=signal,
                     position=order
                 )
-            else:
+            elif isinstance(order, str):
                 await message.answer(order)
 
-    await command_chancel(message, state)
     logger.info("Поиск сигналов остановлен.")
+    await message.answer("Поиск сигналов остановлен.")
 
 
 @logger.catch()
 async def search_fractal_signal(message, state, strategy_settings):
     client = Client(strategy_settings['exchange'], strategy_settings['exchange_type'], strategy_settings['coin_name'])
     await sending_start_fractal_strategy(strategy_settings, message)
-    while not _variables['interrupt']:
+    global INTERRUPT
+    while not INTERRUPT:
         current_position_last = client.get_coin_position()
         now_time = datetime.datetime.now()
         waiting_time_seconds = get_waiting_time(now_time, strategy_settings['time_frame'])
@@ -279,8 +309,7 @@ async def search_fractal_signal(message, state, strategy_settings):
 
         if success:
             logger.info(f"Ордер: {order}")
-            await message.answer(f"Размещен лимитный ордер:\n"
-                                 f"{order}")
+            await message.answer(f"Размещен лимитный ордер:\n{order}")
             db_write(
                 date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
                 user_name=message.from_user.username,
@@ -297,7 +326,7 @@ async def search_fractal_signal(message, state, strategy_settings):
 
         await asyncio.sleep(waiting_time_seconds)
 
-    await command_chancel(message, state)
+    await message.answer("Поиск сигналов остановлен.")
     logger.info("Поиск сигналов остановлен.")
 
 
@@ -341,6 +370,9 @@ async def sending_start_fractal_strategy(strategy_settings, message):
 
 @logger.catch()
 def register_handlers_commands_search_signal(dp: Dispatcher):
+    dp.register_message_handler(command_new_bot, commands='new_bot', state='*')
+    dp.register_message_handler(command_new_bot, Text(equals=['новый бот', 'перезапустить', 'new_bot', 'new bot'],
+                                                      ignore_case=True), state='*')
     dp.register_message_handler(command_chancel, commands=['сброс', 'прервать', 'chancel'], state='*')
     dp.register_message_handler(command_chancel, Text(equals=['сброс', 'прервать', 'chancel'], ignore_case=True),
                                 state='*')

@@ -22,7 +22,10 @@ def menu_strategy():
 
 @logger.catch()
 def menu_chancel():
-    return ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton('/chancel'))
+    return ReplyKeyboardMarkup(resize_keyboard=True).add(
+        # KeyboardButton('/back'),
+        KeyboardButton('/chancel'),
+    )
 
 
 @logger.catch()
