@@ -78,7 +78,7 @@ class Position:
 
         if side == "Buy" and float(price) > float(ticker_price):
             return f"Цена инструмента {self.coin_name}: {ticker_price} ниже цены открытия {side}: {price}"
-        if side == "Sell" and float(price) < float(ticker_price)
+        if side == "Sell" and float(price) < float(ticker_price):
             return f"Цена инструмента {self.coin_name}: {ticker_price} выше цены открытия {side}: {price}"
 
         if float(coin_info["result"]['list'][0]['lotSizeFilter']['minOrderQty']) <= float(volume):

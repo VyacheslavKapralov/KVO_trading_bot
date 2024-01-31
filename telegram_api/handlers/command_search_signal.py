@@ -12,7 +12,7 @@ from exchanges.working_with_data.time_frames_editing import get_timeout_response
 from strategies.signal_ema import output_signals_ema
 from strategies.signal_fractals import fractal_strategy
 from telegram_api.handlers.command_arrange_grid import command_chancel
-from telegram_api.handlers.decorators import check_int, deposit_verification, check_float
+from telegram_api.handlers.decorators import check_int, deposit_verification, check_float, check_coin_name
 from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, menu_ticker, menu_time_frame, \
     menu_percentage, menu_chancel, menu_strategy, menu_price_stop, menu_rollback
 from telegram_api.handlers.state_machine import EmaStrategyState, StrategyState, FractalStrategyState
@@ -66,17 +66,17 @@ async def change_exchange_type(callback: types.CallbackQuery, state: FSMContext)
     async with state.proxy() as strategy_settings:
         strategy_settings['exchange_type'] = callback.data.upper()
     await StrategyState.next()
-    await callback.message.answer('Выберите тикер инструмента', reply_markup=menu_ticker())
+    await callback.message.answer('Выберите тикер инструмента', reply_markup=menu_chancel())
 
 
 @logger.catch()
-# @deposit_verification
-async def change_coin_name(callback: types.CallbackQuery, state: FSMContext):
-    create_database(callback.data)
+@check_coin_name
+async def change_coin_name(message: types.Message, state: FSMContext):
+    create_database(message.text.upper())
     async with state.proxy() as strategy_settings:
-        strategy_settings['coin_name'] = callback.data
+        strategy_settings['coin_name'] = message.text.upper()
     await StrategyState.next()
-    await callback.message.answer('Выберите тайм-фрейм данных', reply_markup=menu_time_frame())
+    await message.answer('Выберите тайм-фрейм данных', reply_markup=menu_time_frame())
 
 
 @logger.catch()
@@ -335,7 +335,7 @@ def register_handlers_commands_search_signal(dp: Dispatcher):
     dp.register_callback_query_handler(strategy, state=StrategyState.strategy)
     dp.register_callback_query_handler(change_exchange, state=StrategyState.exchange)
     dp.register_callback_query_handler(change_exchange_type, state=StrategyState.exchange_type)
-    dp.register_callback_query_handler(change_coin_name, state=StrategyState.coin_name)
+    dp.register_message_handler(change_coin_name, state=StrategyState.coin_name)
     dp.register_callback_query_handler(change_time_frame, state=StrategyState.time_frame)
     dp.register_callback_query_handler(change_percentage_deposit, state=StrategyState.percentage_deposit)
     dp.register_message_handler(get_ema_stop_period, state=EmaStrategyState.stop_line)

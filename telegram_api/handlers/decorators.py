@@ -1,5 +1,6 @@
 from loguru import logger
 
+from exchanges.bybit_api.coin_info import get_instrument_info_bybit
 from exchanges.client.client import Client
 from telegram_api.handlers.keyboards import menu_chancel
 
@@ -96,6 +97,17 @@ def validation_data(func):
                                      f"Нижняя цена сетки: {data['lower_price']}\n"
                                      f"Цена запуска бота: {data['start_price']}\n", reply_markup=menu_chancel())
 
+    return wrapper
+
+
+@logger.catch()
+def check_coin_name(func):
+    async def wrapper(message, state):
+        if message.text.upper() in [elem['symbol'] for elem in get_instrument_info_bybit()['result']['list']]:
+            await func(message, state)
+        else:
+            await message.answer(f"Проверьте корректность введенного названия тикера - {message.text}",
+                                 reply_markup=menu_chancel())
     return wrapper
 
 
