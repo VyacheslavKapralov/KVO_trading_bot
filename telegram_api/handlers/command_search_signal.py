@@ -306,8 +306,10 @@ async def search_fractal_signal(message, state, strategy_settings):
             await asyncio.sleep(waiting_time_seconds)
             continue
         success, order = fractal_strategy(strategy_settings)
+        if isinstance(order, str):
+            await message.answer(order)
 
-        if success:
+        elif success and isinstance(order, list):
             logger.info(f"Ордер: {order}")
             await message.answer(f"Размещен лимитный ордер:\n{order}")
             db_write(
@@ -319,9 +321,9 @@ async def search_fractal_signal(message, state, strategy_settings):
                 ticker=strategy_settings['coin_name'],
                 period=strategy_settings['time_frame'],
                 signal='success',
-                position=order
+                position="\n".join(str(elem) for elem in order)
             )
-        elif isinstance(order, str):
+        elif not success and isinstance(order, str):
             await message.answer(order)
 
         await asyncio.sleep(waiting_time_seconds)

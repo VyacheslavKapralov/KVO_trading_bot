@@ -154,10 +154,10 @@ def open_order(price_round: float, side: str, stop_loss_round: float, strategy_s
     position = Position(strategy_settings['exchange'], strategy_settings['exchange_type'],
                         strategy_settings['coin_name'])
     logger.info(f"order - {side, price_round, volume, stop_loss_round, take_profit_round}")
-    order = position.open_position((side, price_round, volume, stop_loss_round, take_profit_round))
-    if isinstance(position, str):
-        return False, order
-    return True, order
+    # order = position.open_position((side, price_round, volume, stop_loss_round, take_profit_round))
+    # if isinstance(position, str):
+    #     return False, order
+    return position.open_position((side, price_round, volume, stop_loss_round, take_profit_round))
 
 
 @logger.catch()
@@ -173,8 +173,13 @@ def get_orders_list(balance_client: float, coin_info: dict, data_frame: pd.DataF
         volume = get_largest_volume(balance_client, min_lot, strategy_settings['percentage_deposit'],
                                     open_position_price)
         logger.info(f"volume - {volume}")
-        if isinstance(volume, str):
-            return False, volume
+        if volume == 0 or isinstance(volume, str):
+            return False, f"Не достаточно баланса для открытия позиции.\n" \
+                          f"Текущий баланс: {balance_client} USDT\n" \
+                          f"Задан процент от депозита: {strategy_settings['percentage']}%\n" \
+                          f"Цена инструмента: {open_position_price} USDT\n" \
+                          f"Минимально необходимое количество лотов: {min_lot}\n" \
+                          f"По имеющимся параметрам хватает на 0 лотов."
 
         stop_loss_usd, take_profit_usd = calculation_stop_take_usd(balance_client, data_frame, strategy_settings,
                                                                    volume)
@@ -191,12 +196,16 @@ def get_orders_list(balance_client: float, coin_info: dict, data_frame: pd.DataF
         price_round = str(round(open_position_price, rounding_accuracy_price))
         stop_loss_round = str(round(stop_loss, rounding_accuracy_price))
         take_profit_round = str(round(take_profit, rounding_accuracy_price))
-        orders.append(open_order(price_round, side, stop_loss_round, strategy_settings, take_profit_round, volume))
+        order = open_order(price_round, side, stop_loss_round, strategy_settings, take_profit_round, volume)
+        if isinstance(order, str):
+            return False, order
+
+        orders.append(order)
     return True, orders
 
 
 @logger.catch()
-def fractal_strategy(strategy_settings: dict) -> [bool, None | str | dict]:
+def fractal_strategy(strategy_settings: dict) -> [bool, None | str | list]:
     data_frame = add_data_frame(strategy_settings)
     # logger.info(f"add_data_frame - \n{data_frame}")
     data_frame = add_fractals_indicator(data_frame, strategy_settings['period'])
@@ -238,7 +247,7 @@ def get_largest_volume(balance_client: float, position_min_quantity: str, percen
         decimal_places = get_rounding_accuracy(position_min_quantity)
         return round(balance_client * percentage_deposit / 100 / price, decimal_places)
     except ZeroDivisionError:
-        return "Недостаточно средств на балансе."
+        return
 
 
 @logger.catch()

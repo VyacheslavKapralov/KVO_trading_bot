@@ -47,6 +47,7 @@ def get_dataframe_pandas_binance(data: list) -> pd.DataFrame:
 def get_dataframe_pandas_bybit(data: list) -> pd.DataFrame:
     data_frame = pd.DataFrame(data, columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Turnover'])
     data_frame = data_frame.drop(columns=['Turnover'])
+    data_frame['Date'] = data_frame['Date'].apply(pd.to_numeric)
     data_frame['Date'] = pd.to_datetime(data_frame['Date'], unit='ms')
     data_frame = data_frame.reindex(index=data_frame.index[::-1])
     data_frame.reset_index(inplace=True)
