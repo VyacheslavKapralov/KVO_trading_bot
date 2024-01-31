@@ -5,7 +5,7 @@ from pybit.exceptions import InvalidRequestError
 
 
 @logger.catch()
-def get_instrument_info_bybit(exchange_type: str, symbol: str):
+def get_instrument_info_bybit(exchange_type: str = 'linear', symbol: str = None):
     count = 3
     while count > 0:
         session = connect_bybit()
@@ -90,3 +90,6 @@ def get_kline_bybit(exchange_type: str, symbol: str, time_frame: int, limit: int
 
 if __name__ == '__main__':
     logger.info('Running coin_info.py from module exchange.bybit_api')
+    res: dict = get_instrument_info_bybit()
+    for elem in res['result']['list']:
+        print(elem.get("symbol"))

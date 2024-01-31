@@ -53,12 +53,12 @@ class Position:
             logger.info(f"Не удалось получить цену инструмента {self.coin_name}: {ticker_price}")
             return f"Не удалось получить цену инструмента {self.coin_name}: {ticker_price}"
 
-        if side == "Buy" and price > float(ticker_price):
+        if side == "Buy" and float(price) > float(ticker_price):
             return f"Цена инструмента {self.coin_name}: {ticker_price} ниже цены открытия {side}: {price}"
-        if side == "Sell" and price < float(ticker_price):
+        if side == "Sell" and float(price) < float(ticker_price):
             return f"Цена инструмента {self.coin_name}: {ticker_price} выше цены открытия {side}: {price}"
 
-        if float(coin_info["filters"][1].get("minQty")) <= volume:
+        if float(coin_info["filters"][1].get("minQty")) <= float(volume):
             order = Order(self.exchange_name, self.exchange_type, self.coin_name)
             open_order = order.new_order(side=side, quantity=volume, price=ticker_price, stop=stop_price)
             return open_order
@@ -76,12 +76,12 @@ class Position:
         coin_info = get_instrument_info_bybit('linear', self.coin_name)
         ticker_price = get_tickers_bybit('linear', self.coin_name)['result']['list'][0]['lastPrice']
 
-        if side == "Buy" and price > float(ticker_price):
+        if side == "Buy" and float(price) > float(ticker_price):
             return f"Цена инструмента {self.coin_name}: {ticker_price} ниже цены открытия {side}: {price}"
-        if side == "Sell" and price < float(ticker_price):
+        if side == "Sell" and float(price) < float(ticker_price):
             return f"Цена инструмента {self.coin_name}: {ticker_price} выше цены открытия {side}: {price}"
 
-        if float(coin_info["result"]['list'][0]['lotSizeFilter']['minOrderQty']) <= volume:
+        if float(coin_info["result"]['list'][0]['lotSizeFilter']['minOrderQty']) <= float(volume):
             order = Order(self.exchange_name, self.exchange_type, self.coin_name)
             open_order = order.new_order(side=side, qty=volume, price=price, take_profit=take_price,
                                          stop_loss=stop_price)
