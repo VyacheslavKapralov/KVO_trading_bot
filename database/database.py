@@ -20,8 +20,8 @@ def create_database(name_tabl: str):
                         exchange_type TEXT,
                         strategy TEXT,
                         period TEXT,
-                        signal TEXT,
-                        position TEXT
+                        signal TEXT CHECK (typeof(signal) IN ('dict', 'str', 'list')),
+                        position TEXT CHECK (typeof(position) IN ('dict', 'str', 'list'))
                         )""")
     connect.commit()
     cursor.close()
@@ -30,7 +30,7 @@ def create_database(name_tabl: str):
 
 @logger.catch()
 def db_write(date_time: str, user_name: str, exchange: str, exchange_type: str, strategy: str, ticker: str, period: str,
-             signal: str, position: str):
+             signal: dict | str | list, position: dict | str | list):
     connect = connect_database()
     cursor = connect.cursor()
     cursor.execute(

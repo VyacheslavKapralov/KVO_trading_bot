@@ -245,6 +245,18 @@ async def search_ema_signal(message, state, strategy_settings):
             await sending_signal_message(strategy_settings, message, signal)
             success, order = launch_strategy(strategy_settings)
             logger.info(f"Ордер: {order}")
+            db_write(
+                date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
+                user_name=message.from_user.username,
+                exchange=strategy_settings['exchange'],
+                exchange_type=strategy_settings['exchange_type'],
+                strategy=strategy_settings['strategy'],
+                ticker=strategy_settings['coin_name'],
+                period=strategy_settings['time_frame'],
+                signal=signal,
+                position=order
+            )
+
         else:
             await message.answer(order)
 
@@ -266,6 +278,7 @@ async def search_fractal_signal(message, state, strategy_settings):
         success, order = fractal_strategy(strategy_settings)
 
         if success:
+            logger.info(f"Ордер: {order}")
             await message.answer(f"Размещен лимитный ордер:\n"
                                  f"{order}")
             db_write(
@@ -276,7 +289,7 @@ async def search_fractal_signal(message, state, strategy_settings):
                 strategy=strategy_settings['strategy'],
                 ticker=strategy_settings['coin_name'],
                 period=strategy_settings['time_frame'],
-                signal=success,
+                signal='success',
                 position=order
             )
         elif isinstance(order, str):
