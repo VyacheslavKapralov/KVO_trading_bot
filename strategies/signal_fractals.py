@@ -31,8 +31,11 @@ def direction_determination(data: pd.DataFrame) -> dict:
             return {'Sell': highs[2]}
         elif highs[2] >= highs[1] >= highs[0] and downs[2] >= downs[1] >= downs[0]:
             return {'Buy': downs[2], 'Sell': highs[2]}
+        elif highs[2] * 1.005 >= highs[0] >= highs[2] * 0.995 and downs[2] * 1.005 >= downs[0] >= downs[2] * 0.995:
+            return {'Buy': downs[2], 'Sell': highs[2]}
+
     except IndexError:
-        return
+        return {}
 
 
 @logger.catch()
