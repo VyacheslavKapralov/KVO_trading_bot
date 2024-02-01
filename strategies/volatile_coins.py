@@ -13,6 +13,11 @@ def get_period_atr(settings: dict) -> int:
     return period // time_frame
 
 
+def tru_range_percent(data: pd.DataFrame, period: int) -> pd.DataFrame:
+    data['ATR_percent'] = data['close'].iloc[-1] * data[f'ATR_{period}'].iloc[-1] / 100
+    return data
+
+
 def sort_dictionary(dictionary: dict, ascending: str = 'True', limit: int = 5, reverse: bool = False) -> dict:
     if ascending == 'False':
         reverse = True
