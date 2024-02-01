@@ -39,5 +39,14 @@ class GridState(StatesGroup):
     starting_price = State()
 
 
+class VolatileCoin(StatesGroup):
+    exchange = State()
+    exchange_type = State()
+    top_number = State()
+    filtration = State()
+    time_frame = State()
+    period = State()
+
+
 if __name__ == '__main__':
     logger.info('Running state_machine.py from module telegram_api/handlers')

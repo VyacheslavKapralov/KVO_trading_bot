@@ -8,20 +8,22 @@ from indicators.add_indicators_to_dataframe import add_exponential_moving_averag
 
 
 @logger.catch()
-def add_data_frame(strategy_settings):
+def add_data_frame(strategy_settings: dict, limit: int):
     match strategy_settings['exchange'], strategy_settings['exchange_type']:
         case 'BYBIT', 'FUTURES':
             klines = get_kline_bybit('linear', strategy_settings['coin_name'],
-                                     get_interval_for_bybit(strategy_settings['time_frame']))
+                                     get_interval_for_bybit(strategy_settings['time_frame']), limit=limit)
             return get_dataframe_pandas_bybit(klines['result']['list'])
         case 'BYBIT', 'SPOT':
             klines = get_kline_bybit('spot', strategy_settings['coin_name'],
                                      get_interval_for_bybit(strategy_settings['time_frame']))
+            return klines
         case 'BINANCE', 'FUTURES':
             klines = get_klines_futures_without_api(strategy_settings['coin_name'], strategy_settings['time_frame'])
             return get_dataframe_pandas_binance(klines)
         case 'BINANCE', 'SPOT':
             klines = get_klines_spot_without_api(strategy_settings['coin_name'], strategy_settings['time_frame'])
+            return klines
 
 
 @logger.catch()

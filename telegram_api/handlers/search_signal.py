@@ -2,22 +2,27 @@ import asyncio
 import datetime
 
 from loguru import logger
-from aiogram import types, Dispatcher
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
-from database.database import db_write, create_database
+from database.database import create_database, db_write
 from exchanges.client.client import Client
 from exchanges.trading.action_with_positions import launch_strategy
-from exchanges.working_with_data.time_frames_editing import get_timeout_response, get_waiting_time
+from exchanges.working_with_data.time_frames_editing import get_time_seconds, get_waiting_time
 from strategies.signal_ema import output_signals_ema
 from strategies.signal_fractals import fractal_strategy
-from telegram_api.handlers.command_arrange_grid import command_chancel
-from telegram_api.handlers.decorators import check_int, deposit_verification, check_float, check_coin_name
-from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, menu_ticker, menu_time_frame, \
-    menu_percentage, menu_chancel, menu_strategy, menu_price_stop, menu_rollback
-from telegram_api.handlers.state_machine import EmaStrategyState, StrategyState, FractalStrategyState
+from telegram_api.handlers.decorators import check_int, check_float, check_coin_name, deposit_verification
+from telegram_api.handlers.keyboards import (
+    menu_exchange,
+    menu_exchange_type,
+    menu_time_frame,
+    menu_chancel,
+    menu_strategy,
+    menu_price_stop,
+    menu_rollback,
+)
+from telegram_api.handlers.state_machine import EmaStrategyState, FractalStrategyState, StrategyState
 
-# _variables = {'ignore_message': False, 'interrupt': False}
 IGNORE_MESSAGE = False
 INTERRUPT = False
 
@@ -65,7 +70,6 @@ async def command_search_signal(message: types.Message, state: FSMContext):
     global IGNORE_MESSAGE, INTERRUPT
     IGNORE_MESSAGE = False
     INTERRUPT = False
-    # _variables = {'ignore_message': False, 'interrupt': False}
     await StrategyState.strategy.set()
     await message.answer('Выберите стратегию', reply_markup=menu_strategy())
 
@@ -152,7 +156,7 @@ async def get_ema_period(message: types.Message, state: FSMContext):
 async def get_ma_period(message: types.Message, state: FSMContext):
     async with state.proxy() as strategy_settings:
         strategy_settings['ma'] = int(message.text)
-    await add_client(message, state)
+    await result(message, state)
 
 
 @logger.catch()
@@ -226,7 +230,7 @@ async def get_multiplicity_atr_fractal(message: types.Message, state: FSMContext
     async with state.proxy() as strategy_settings:
         strategy_settings['take_profit'] = f'atr * {message.text}'
         strategy_settings['multiplicity_atr'] = int(message.text)
-    await add_client(message, state)
+    await result(message, state)
 
 
 @logger.catch()
@@ -234,11 +238,11 @@ async def get_multiplicity_atr_fractal(message: types.Message, state: FSMContext
 async def get_take_profit_fractal(message: types.Message, state: FSMContext):
     async with state.proxy() as strategy_settings:
         strategy_settings['take_profit'] = float(message.text)
-    await add_client(message, state)
+    await result(message, state)
 
 
 @logger.catch()
-async def add_client(message: types.Message, state: FSMContext):
+async def result(message: types.Message, state: FSMContext):
     global IGNORE_MESSAGE
     IGNORE_MESSAGE = True
     async with state.proxy() as strategy_settings:
@@ -251,15 +255,15 @@ async def add_client(message: types.Message, state: FSMContext):
 
 
 @logger.catch()
-async def search_ema_signal(message, state, strategy_settings):
+async def search_ema_signal(message, strategy_settings):
     current_position_last = {'position': None}
     global INTERRUPT
     while not INTERRUPT:
         now_time = datetime.datetime.now()
-        waiting_time_seconds = get_waiting_time(now_time, strategy_settings['time_frame'])
+        waiting_time_seconds = await get_waiting_time(now_time, strategy_settings['time_frame'])
         await asyncio.sleep(waiting_time_seconds)
         await sending_start_ema_strategy(strategy_settings, message)
-        flag, signal = output_signals_ema(
+        flag, signal = await output_signals_ema(
             exchange=strategy_settings['exchange'],
             exchange_type=strategy_settings['exchange_type'],
             symbol=strategy_settings['coin_name'],
@@ -271,7 +275,7 @@ async def search_ema_signal(message, state, strategy_settings):
         )
         if flag:
             await sending_signal_message(strategy_settings, message, signal)
-            success, order = launch_strategy(strategy_settings)
+            success, order = await launch_strategy(strategy_settings)
             if success:
                 logger.info(f"Ордер: {order}")
                 await message.answer(f"Открыт ордер: \n{order}")
@@ -295,36 +299,35 @@ async def search_ema_signal(message, state, strategy_settings):
 
 @logger.catch()
 async def search_fractal_signal(message, state, strategy_settings):
-    client = Client(strategy_settings['exchange'], strategy_settings['exchange_type'], strategy_settings['coin_name'])
+    # client = Client(strategy_settings['exchange'], strategy_settings['exchange_type'], strategy_settings['coin_name'])
     await sending_start_fractal_strategy(strategy_settings, message)
     global INTERRUPT
     while not INTERRUPT:
-        current_position_last = client.get_coin_position()
+        # current_position_last = client.get_coin_position()
         now_time = datetime.datetime.now()
-        waiting_time_seconds = get_waiting_time(now_time, strategy_settings['time_frame'])
-        if current_position_last:
-            await asyncio.sleep(waiting_time_seconds)
-            continue
-        success, order = fractal_strategy(strategy_settings)
+        waiting_time_seconds = await get_waiting_time(now_time, strategy_settings['time_frame'])
+        # if current_position_last:
+        #     await asyncio.sleep(waiting_time_seconds)
+        #     continue
+        order = await fractal_strategy(strategy_settings)
         if isinstance(order, str):
             await message.answer(order)
 
-        elif success and isinstance(order, list):
+        elif isinstance(order, list):
             logger.info(f"Ордер: {order}")
-            await message.answer(f"Размещен лимитный ордер:\n{order}")
-            db_write(
-                date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
-                user_name=message.from_user.username,
-                exchange=strategy_settings['exchange'],
-                exchange_type=strategy_settings['exchange_type'],
-                strategy=strategy_settings['strategy'],
-                ticker=strategy_settings['coin_name'],
-                period=strategy_settings['time_frame'],
-                signal='success',
-                position="\n".join(str(elem) for elem in order)
-            )
-        elif not success and isinstance(order, str):
-            await message.answer(order)
+            for elem in order:
+                await message.answer(f"Размещен лимитный ордер:\n{elem}")
+                db_write(
+                    date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    user_name=message.from_user.username,
+                    exchange=strategy_settings['exchange'],
+                    exchange_type=strategy_settings['exchange_type'],
+                    strategy=strategy_settings['strategy'],
+                    ticker=strategy_settings['coin_name'],
+                    period=strategy_settings['time_frame'],
+                    signal='success',
+                    position=elem
+                )
 
         await asyncio.sleep(waiting_time_seconds)
 
@@ -334,7 +337,7 @@ async def search_fractal_signal(message, state, strategy_settings):
 
 @logger.catch()
 async def sending_start_message(data, message):
-    timeout_seconds = get_timeout_response(data['time_frame'])
+    timeout_seconds = get_time_seconds(data['time_frame'])
     logger.info(f"Старт поиска сигнала по стратегии {data['strategy']}. Период: {timeout_seconds} сек")
     await message.answer(f"Начинаю поиск сигналов на бирже {data['exchange']}\n"
                          f"По стратегии {data['strategy']}\n"
