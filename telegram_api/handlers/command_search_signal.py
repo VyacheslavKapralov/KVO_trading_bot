@@ -299,32 +299,31 @@ async def search_fractal_signal(message, state, strategy_settings):
     await sending_start_fractal_strategy(strategy_settings, message)
     global INTERRUPT
     while not INTERRUPT:
-        current_position_last = client.get_coin_position()
+        # current_position_last = client.get_coin_position()
         now_time = datetime.datetime.now()
         waiting_time_seconds = get_waiting_time(now_time, strategy_settings['time_frame'])
-        if current_position_last:
-            await asyncio.sleep(waiting_time_seconds)
-            continue
-        success, order = fractal_strategy(strategy_settings)
+        # if current_position_last:
+        #     await asyncio.sleep(waiting_time_seconds)
+        #     continue
+        order = fractal_strategy(strategy_settings)
         if isinstance(order, str):
             await message.answer(order)
 
-        elif success and isinstance(order, list):
+        elif isinstance(order, list):
             logger.info(f"Ордер: {order}")
-            await message.answer(f"Размещен лимитный ордер:\n{order}")
-            db_write(
-                date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
-                user_name=message.from_user.username,
-                exchange=strategy_settings['exchange'],
-                exchange_type=strategy_settings['exchange_type'],
-                strategy=strategy_settings['strategy'],
-                ticker=strategy_settings['coin_name'],
-                period=strategy_settings['time_frame'],
-                signal='success',
-                position="\n".join(str(elem) for elem in order)
-            )
-        elif not success and isinstance(order, str):
-            await message.answer(order)
+            for elem in order:
+                await message.answer(f"Размещен лимитный ордер:\n{elem}")
+                db_write(
+                    date_time=now_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    user_name=message.from_user.username,
+                    exchange=strategy_settings['exchange'],
+                    exchange_type=strategy_settings['exchange_type'],
+                    strategy=strategy_settings['strategy'],
+                    ticker=strategy_settings['coin_name'],
+                    period=strategy_settings['time_frame'],
+                    signal='success',
+                    position=elem
+                )
 
         await asyncio.sleep(waiting_time_seconds)
 

@@ -143,51 +143,50 @@ def calculation_fee(price_round: float, strategy_settings: dict, volume: float) 
     logger.info(f"fee - {fee}")
 
     if isinstance(fee, str):
-        return f"Не удалось получить комиссию по инструменту {strategy_settings['coin_name']}.\n" \
+        return f"Не удалось получить комиссию по инструменту {strategy_settings['coin_name']}\n" \
                f"Ответ сервера: {fee}"
     return str(round(price_round * volume * fee, 5)).rstrip('0').rstrip('.')
 
 
 @logger.catch()
 def open_order(price_round: float, side: str, stop_loss_round: float, strategy_settings: dict,
-               take_profit_round: float, volume: float) -> [bool, str | dict]:
+               take_profit_round: float, order_type: str, volume: float) -> [bool, str | dict]:
     position = Position(strategy_settings['exchange'], strategy_settings['exchange_type'],
                         strategy_settings['coin_name'])
     logger.info(f"order - {side, price_round, volume, stop_loss_round, take_profit_round}")
-    # order = position.open_position((side, price_round, volume, stop_loss_round, take_profit_round))
-    # if isinstance(position, str):
-    #     return False, order
-    return position.open_position((side, price_round, volume, stop_loss_round, take_profit_round))
+    order = position.open_position((order_type, price_round, stop_loss_round, side, take_profit_round, volume))
+    if isinstance(position, str):
+        return order
 
 
 @logger.catch()
 def get_orders_list(balance_client: float, coin_info: dict, data_frame: pd.DataFrame, direction: dict, min_lot: float,
-                    strategy_settings: dict) -> [bool, list | str]:
+                    order_type: str, strategy_settings: dict) -> [bool, list | str]:
     orders = []
     for side in direction.keys():
         open_position_price = get_open_position_price(data_frame, side, strategy_settings)
         logger.info(f"open_position_price - {open_position_price}")
         if not open_position_price:
-            return False, f"Не удалось рассчитать цену открытия ордера: {open_position_price}"
+            return f"Не удалось рассчитать цену открытия ордера: {open_position_price}"
 
         volume = get_largest_volume(balance_client, min_lot, strategy_settings['percentage_deposit'],
                                     open_position_price)
         logger.info(f"volume - {volume}")
-        if volume == 0 or isinstance(volume, str):
-            return False, f"Не достаточно баланса для открытия позиции.\n" \
-                          f"Текущий баланс: {balance_client} USDT\n" \
-                          f"Задан процент от депозита: {strategy_settings['percentage']}%\n" \
-                          f"Цена инструмента: {open_position_price} USDT\n" \
-                          f"Минимально необходимое количество лотов: {min_lot}\n" \
-                          f"По имеющимся параметрам хватает на 0 лотов."
+        if volume == 0 or not volume:
+            return f"Не достаточно баланса для открытия позиции\n" \
+                   f"Текущий баланс: {balance_client} USDT\n" \
+                   f"Задан процент от депозита: {strategy_settings['percentage']}%\n" \
+                   f"Цена инструмента: {open_position_price} USDT\n" \
+                   f"Минимально необходимое количество лотов: {min_lot}\n" \
+                   f"По имеющимся параметрам хватает на 0 лотов."
 
         stop_loss_usd, take_profit_usd = calculation_stop_take_usd(balance_client, data_frame, strategy_settings,
                                                                    volume)
         logger.info(f"\nstop_loss_usd - {stop_loss_usd}\ntake_profit_usd - {take_profit_usd}")
         if not stop_loss_usd:
-            return False, f"Не хватает необходимых данных для открытия позиции\n" \
-                          f"Stop_loss: {strategy_settings['stop_loss']}\n" \
-                          f"Take_profit: {strategy_settings['take_profit']}"
+            return f"Не хватает необходимых данных для открытия позиции\n" \
+                   f"Stop_loss: {strategy_settings['stop_loss']}\n" \
+                   f"Take_profit: {strategy_settings['take_profit']}"
 
         stop_loss, take_profit = calculation_stop_take(side, open_position_price, stop_loss_usd, take_profit_usd)
         logger.info(f"\nstop_loss - {stop_loss}\ntake_profit - {take_profit}")
@@ -196,48 +195,46 @@ def get_orders_list(balance_client: float, coin_info: dict, data_frame: pd.DataF
         price_round = str(round(open_position_price, rounding_accuracy_price))
         stop_loss_round = str(round(stop_loss, rounding_accuracy_price))
         take_profit_round = str(round(take_profit, rounding_accuracy_price))
-        order = open_order(price_round, side, stop_loss_round, strategy_settings, take_profit_round, volume)
+        order = open_order(order_type, price_round, side, stop_loss_round, strategy_settings, take_profit_round, volume)
         if isinstance(order, str):
-            return False, order
+            return order
 
-        orders.append(order)
-    return True, orders
+        orders.append(
+            f"Установлен ордер:\nНаправление: {side}\nЦена: {price_round}\nОбъем {volume}\nСтоп-лосс: {stop_loss_round}\nТейк: {take_profit_round}")
+    return orders
 
 
 @logger.catch()
 def fractal_strategy(strategy_settings: dict) -> [bool, None | str | list]:
     data_frame = add_data_frame(strategy_settings)
-    # logger.info(f"add_data_frame - \n{data_frame}")
     data_frame = add_fractals_indicator(data_frame, strategy_settings['period'])
-    # logger.info(f"add_fractals_indicator - \n{data_frame}")
     direction = direction_determination(data_frame)
     logger.info(f"direction - {direction}")
     if not direction:
-        return False, None
+        return
 
     signals = signal_open_position(data_frame, direction)
     logger.info(f"signals - {signals}")
     if not signals:
-        return False, None
+        return
 
     data_frame = add_average_true_range_period(data_frame, strategy_settings['period'])
-    # logger.info(f"add_average_true_range_period - \n{data_frame}")
     balance_client = Client(strategy_settings['exchange'], strategy_settings['exchange_type'],
                             strategy_settings['coin_name']).get_balance()
     logger.info(f"balance_client - {balance_client}")
     if isinstance(balance_client, str):
-        return False, f"Не удалось получить баланс клиента.\nОтвет сервера: {balance_client}"
+        return f"Не удалось получить баланс клиента\nОтвет сервера: {balance_client}"
 
     coin_info = get_instrument_info_bybit('linear', strategy_settings['coin_name'])
-    # logger.info(f"coin_info - {coin_info}")
     if isinstance(coin_info, str) or not coin_info:
-        return False, f"Не удалось получить данные по инструменту {strategy_settings['coin_name']}.\n" \
-                      f"Ответ сервера: {coin_info}"
+        return f"Не удалось получить данные по инструменту {strategy_settings['coin_name']}\n" \
+               f"Ответ сервера: {coin_info}"
 
     min_lot = coin_info["result"]['list'][0]['lotSizeFilter']['minOrderQty']
     logger.info(f"min_lot - {min_lot}")
 
-    return get_orders_list(balance_client, coin_info, data_frame, direction, min_lot, strategy_settings)
+    return get_orders_list(balance_client, coin_info, data_frame, direction, min_lot, strategy_settings,
+                           order_type='Limit')
 
 
 @logger.catch()

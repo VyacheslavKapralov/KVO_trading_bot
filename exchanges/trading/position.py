@@ -71,25 +71,24 @@ class Position:
         pass
 
     @logger.catch()
-    def _open_position_futures_bybit(self, data: tuple[str, str, str, str, str]) -> tuple[dict | str, str]:
-        side, price, volume, stop_price, take_price = data
+    def _open_position_futures_bybit(self, data: tuple[str, str, str, str, str, str]) -> dict | str:
+        order_type, price, stop_price, side, take_price, volume = data
         coin_info = get_instrument_info_bybit('linear', self.coin_name)
         ticker_price = get_tickers_bybit('linear', self.coin_name)['result']['list'][0]['lastPrice']
+        min_lot = coin_info["result"]['list'][0]['lotSizeFilter']['minOrderQty']
 
-        if side == "Buy" and float(price) > float(ticker_price):
-            return f"Цена инструмента {self.coin_name}: {ticker_price} ниже цены открытия {side}: {price}"
-        if side == "Sell" and float(price) < float(ticker_price):
-            return f"Цена инструмента {self.coin_name}: {ticker_price} выше цены открытия {side}: {price}"
-
-        if float(coin_info["result"]['list'][0]['lotSizeFilter']['minOrderQty']) <= float(volume):
-            order = Order(self.exchange_name, self.exchange_type, self.coin_name)
-            open_order = order.new_order(side=side, qty=volume, price=price, take_profit=take_price,
-                                         stop_loss=stop_price)
-            return open_order
-        else:
-            logger.info("Недостаточно баланса для совершения операции.")
+        if float(min_lot) <= float(volume):
             return "Недостаточно баланса для совершения операции. " \
                    "Увеличьте используемый процент от депозита или пополните депозит."
+
+        match order_type, side, (float(price) > float(ticker_price)):
+            case "Limit", "Buy", True:
+                return f"Цена инструмента {self.coin_name}: {ticker_price} ниже цены открытия {side}: {price}"
+            case "Limit", "Sell", False:
+                return f"Цена инструмента {self.coin_name}: {ticker_price} выше цены открытия {side}: {price}"
+
+        order = Order(self.exchange_name, self.exchange_type, self.coin_name)
+        return order.new_order(side=side, qty=volume, price=price, take_profit=take_price, stop_loss=stop_price)
 
     @logger.catch()
     def _open_position_spot_bybit(self, data):
