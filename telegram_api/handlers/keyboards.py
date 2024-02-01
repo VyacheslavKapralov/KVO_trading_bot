@@ -113,5 +113,32 @@ def menu_rollback():
     )
 
 
+@logger.catch()
+def menu_ascending():
+    return InlineKeyboardMarkup(row_width=2).row(
+        InlineKeyboardButton(text='По возрастанию', callback_data='True'),
+        InlineKeyboardButton(text='По убыванию', callback_data='False'),
+    )
+
+
+@logger.catch()
+def menu_period():
+    return InlineKeyboardMarkup(row_width=2).add(
+        InlineKeyboardButton(text='За минуту', callback_data='1m'),
+        InlineKeyboardButton(text='За 5 минут', callback_data='5m'),
+        InlineKeyboardButton(text='За 15 минут', callback_data='15m'),
+        InlineKeyboardButton(text='За 30 минут', callback_data='30m'),
+        InlineKeyboardButton(text='За час', callback_data='1h'),
+        InlineKeyboardButton(text='За 2 часа', callback_data='2h'),
+        InlineKeyboardButton(text='За 4 часа', callback_data='4h'),
+        InlineKeyboardButton(text='За 6 часов', callback_data='6h'),
+        InlineKeyboardButton(text='За 8 часов', callback_data='8h'),
+        InlineKeyboardButton(text='За 12 часов', callback_data='12h'),
+        InlineKeyboardButton(text='За 1 день', callback_data='1d'),
+        InlineKeyboardButton(text='За неделю', callback_data='1w'),
+        InlineKeyboardButton(text='За месяц', callback_data='1M'),
+    )
+
+
 if __name__ == '__main__':
     logger.info('Running keyboards.py from module telegram_api/handlers')

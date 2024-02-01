@@ -6,8 +6,7 @@ from pybit.exceptions import InvalidRequestError
 
 @logger.catch()
 def get_instrument_info_bybit(exchange_type: str = 'linear', symbol: str = None):
-    count = 3
-    while count > 0:
+    for _ in range(3):
         session = connect_bybit()
         if not isinstance(session, str):
             try:
@@ -16,13 +15,11 @@ def get_instrument_info_bybit(exchange_type: str = 'linear', symbol: str = None)
                 logger.info(f"Found error status code: {error.status_code}, error resp_headers: {error.resp_headers}, "
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
-        count -= 1
 
 
 @logger.catch()
 def get_tickers_bybit(exchange_type: str, symbol: str):
-    count = 3
-    while count > 0:
+    for _ in range(3):
         session = connect_bybit()
         if not isinstance(session, str):
             try:
@@ -31,14 +28,12 @@ def get_tickers_bybit(exchange_type: str, symbol: str):
                 logger.info(f"Found error status code: {error.status_code}, error resp_headers: {error.resp_headers}, "
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
-        count -= 1
     return f"Не удалось получить данные от биржи."
 
 
 @logger.catch()
 def get_orderbook_bybit(exchange_type: str, symbol: str):
-    count = 3
-    while count > 0:
+    for _ in range(3):
         session = connect_bybit()
         if not isinstance(session, str):
             try:
@@ -47,14 +42,12 @@ def get_orderbook_bybit(exchange_type: str, symbol: str):
                 logger.info(f"Found error status code: {error.status_code}, error resp_headers: {error.resp_headers}, "
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
-        count -= 1
     return f"Не удалось получить данные от биржи."
 
 
 @logger.catch()
 def get_fee_bybit(exchange_type: str, symbol: str):
-    count = 3
-    while count > 0:
+    for _ in range(3):
         session = connect_bybit()
         if not isinstance(session, str):
             try:
@@ -63,28 +56,28 @@ def get_fee_bybit(exchange_type: str, symbol: str):
                 logger.info(f"Found error status code: {error.status_code}, error resp_headers: {error.resp_headers}, "
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
-        count -= 1
     return f"Не удалось получить данные от биржи."
 
 
 @logger.catch()
-def get_kline_bybit(exchange_type: str, symbol: str, time_frame: int, limit: int = 500):
-    count = 3
-    while count > 0:
+def get_kline_bybit(exchange_type: str, symbol: str, time_frame: int, end: int = None, start: int = None,
+                    limit: int = 500):
+    for _ in range(3):
         session = connect_bybit()
         if not isinstance(session, str):
             try:
                 return session.get_kline(
                     category=exchange_type,
+                    end=end,
+                    start=start,
                     symbol=symbol,
                     interval=time_frame,
-                    # limit=limit,
+                    limit=limit,
                 )
             except InvalidRequestError as error:
                 logger.info(f"Found error status code: {error.status_code}, error resp_headers: {error.resp_headers}, "
                             f"error message: {error.message}")
                 return f'Error code: {error.status_code} - {error.message}'
-        count -= 1
     return f"Не удалось получить данные от биржи."
 
 

@@ -28,7 +28,7 @@ def add_position(data, period_stop: int, period_fast: int, period_slow: int) -> 
 
 
 @logger.catch()
-def output_signals_ema(exchange: str, exchange_type: str, symbol: str, time_frame: str, period_stop: int,
+async def output_signals_ema(exchange: str, exchange_type: str, symbol: str, time_frame: str, period_stop: int,
                        period_fast: int, period_slow: int, current_position_last: dict) -> tuple[bool, str | None]:
     if exchange == 'BINANCE':
         data = get_klines_futures_without_api(symbol, time_frame)
