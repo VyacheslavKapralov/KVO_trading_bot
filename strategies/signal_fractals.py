@@ -205,7 +205,7 @@ def get_orders_list(balance_client: float, coin_info: dict, data_frame: pd.DataF
 
 
 @logger.catch()
-def fractal_strategy(strategy_settings: dict) -> [bool, None | str | list]:
+async def fractal_strategy(strategy_settings: dict) -> [bool, None | str | list]:
     data_frame = add_data_frame(strategy_settings)
     data_frame = add_fractals_indicator(data_frame, strategy_settings['period'])
     direction = direction_determination(data_frame)

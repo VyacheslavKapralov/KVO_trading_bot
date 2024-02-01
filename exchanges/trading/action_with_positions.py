@@ -5,7 +5,7 @@ from strategies.signal_fractals import fractal_strategy
 
 
 @logger.catch()
-def launch_strategy(strategy_settings: dict) -> tuple[bool, dict | str]:
+async def launch_strategy(strategy_settings: dict) -> tuple[bool, dict | str]:
     match strategy_settings['exchange'], strategy_settings['strategy']:
         case 'BINANCE', 'EMA':
             return action_choice_ema_binance(strategy_settings)
