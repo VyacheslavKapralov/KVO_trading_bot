@@ -4,9 +4,15 @@ from aiogram.dispatcher.filters import Text
 from loguru import logger
 
 from strategies.volatile_coins import volatile_coins
-from telegram_api.handlers.decorators import check_int
-from telegram_api.handlers.keyboards import menu_exchange, menu_exchange_type, menu_chancel, menu_ascending, \
-    menu_time_frame, menu_period
+from utils.decorators import check_int
+from telegram_api.handlers.keyboards import (
+    menu_exchange,
+    menu_exchange_type,
+    menu_chancel,
+    menu_ascending,
+    menu_time_frame,
+    menu_period,
+)
 from telegram_api.handlers.state_machine import VolatileCoin
 
 

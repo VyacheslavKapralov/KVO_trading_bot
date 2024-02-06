@@ -1,6 +1,6 @@
 from loguru import logger
 
-from exchanges.working_with_data.add_dataframe import add_data_frame
+from utils.add_dataframe import add_data_frame
 from strategies.signal_fractals import fractal_strategy
 
 

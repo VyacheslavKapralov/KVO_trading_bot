@@ -1,10 +1,10 @@
 import pandas as pd
-import mplfinance as mpf
+# import mplfinance as mpf
 from loguru import logger
 
-from exchanges.working_with_data.add_dataframe import get_dataframe_pandas_binance
-from exchanges.binance_api.klines_without_apikey import get_klines_futures_without_api
-from plotting.creating_graph import building_price_chart
+# from exchanges.working_with_data.add_dataframe import get_dataframe_pandas_binance
+# from exchanges.binance_api.klines_without_apikey import get_klines_futures_without_api
+# from plotting.creating_graph import building_price_chart
 
 
 @logger.catch()
@@ -50,14 +50,11 @@ def search_tend(data: pd.DataFrame) -> str:
 
 if __name__ == '__main__':
     logger.info('Running signal_smm.py from module strategies')
-    data_frame = get_klines_futures_without_api(symbol='BTCUSDT', time_frame='1h', limit=30)
-    data_frame = get_dataframe_pandas_binance(data_frame)
-    data_frame = mark_swings(data_frame)
-    data_frame.to_csv('data_swings.csv', index=False)
-    addplot=[]
-    addplot.append(mpf.make_addplot(data_frame["Swing_high"], type='scatter', color='#7F7F7F', panel=0))
-    addplot.append(mpf.make_addplot(data_frame['Swing_low'], type='scatter', color='#AA13E5', panel=0))
-    building_price_chart(data_frame, 'BTCUSDT', '1h', addplot=addplot)
-
-
-
+    # data_frame = get_klines_futures_without_api(symbol='BTCUSDT', time_frame='1h', limit=30)
+    # data_frame = get_dataframe_pandas_binance(data_frame)
+    # data_frame = mark_swings(data_frame)
+    # data_frame.to_csv('data_swings.csv', index=False)
+    # addplot=[]
+    # addplot.append(mpf.make_addplot(data_frame["Swing_high"], type='scatter', color='#7F7F7F', panel=0))
+    # addplot.append(mpf.make_addplot(data_frame['Swing_low'], type='scatter', color='#AA13E5', panel=0))
+    # building_price_chart(data_frame, 'BTCUSDT', '1h', addplot=addplot)

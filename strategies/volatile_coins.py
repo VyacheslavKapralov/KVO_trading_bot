@@ -1,10 +1,9 @@
-import pandas as pd
 from loguru import logger
 
 from exchanges.bybit_api.coin_info import get_instrument_info_bybit
-from exchanges.working_with_data.add_dataframe import add_data_frame
-from exchanges.working_with_data.time_frames_editing import get_time_seconds
-from indicators.add_indicators_to_dataframe import add_average_true_range_period
+from utils.add_dataframe import add_data_frame
+from utils.time_frames_editing import get_time_seconds
+from utils.add_indicators_to_dataframe import add_average_true_range_period
 
 
 def get_period_atr(settings: dict) -> int:
