@@ -2,9 +2,13 @@ from loguru import logger
 import pandas as pd
 
 from exchanges.client.client import Client
-from exchanges.working_with_data.add_dataframe import get_dataframe_pandas_binance, add_data_frame
-from indicators.add_indicators_to_dataframe import fibonacci_retracement_down, fibonacci_retracement_up, \
-    fibonacci_expansion_up, fibonacci_expansion_down
+from utils.add_dataframe import get_dataframe_pandas_binance, add_data_frame
+from utils.add_indicators_to_dataframe import (
+    fibonacci_retracement_down,
+    fibonacci_retracement_up,
+    fibonacci_expansion_up,
+    fibonacci_expansion_down,
+)
 
 
 @logger.catch()

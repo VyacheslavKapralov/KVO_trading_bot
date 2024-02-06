@@ -51,7 +51,8 @@ def get_fee_bybit(exchange_type: str, symbol: str):
         session = connect_bybit()
         if not isinstance(session, str):
             try:
-                return session.get_fee_rates(category=exchange_type, symbol=symbol)
+                fee = session.get_fee_rates(category=exchange_type, symbol=symbol)['result']['list'][0]['makerFeeRate']
+                return float(fee)
             except InvalidRequestError as error:
                 logger.info(f"Found error status code: {error.status_code}, error resp_headers: {error.resp_headers}, "
                             f"error message: {error.message}")

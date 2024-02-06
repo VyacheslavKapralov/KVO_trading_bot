@@ -8,16 +8,15 @@ from pybit.exceptions import InvalidRequestError
 
 class Client:
 
-    def __init__(self, exchange_name: str = None, exchange_type: str = None, coin_name: str = None):
+    def __init__(self, exchange_name: str = None, exchange_type: str = None):
         self.exchange_name = exchange_name
         self.exchange_type = exchange_type
-        self.coin_name = coin_name
 
     @logger.catch()
-    def get_positions(self) -> tuple | str:
+    def get_positions(self, coin_name: str) -> tuple | str:
         match self.exchange_name, self.exchange_type:
             case 'BINANCE', 'FUTURES':
-                return self._get_positions_coin_um_futures_binance()
+                return self._get_positions_coin_um_futures_binance(coin_name)
             case 'BINANCE', 'SPOT':
                 pass
             case 'BYBIT', 'FUTURES':
@@ -28,7 +27,7 @@ class Client:
                 return ''
 
     @logger.catch()
-    def get_coin_position(self) -> tuple | str:
+    def get_coin_position(self, coin_name: str) -> tuple | str:
         match self.exchange_name, self.exchange_type:
             case 'BINANCE', 'FUTURES':
                 pass
@@ -48,7 +47,7 @@ class Client:
                 return self._get_balance_um_futures_binance()
             case 'BINANCE', 'SPOT':
                 return self._get_balance_spot_binance()
-            case 'BYBIT', 'FUTURES':
+            case 'BYBIT', 'LINEAR':
                 return self._get_balance_unified_bybit()
             case 'BYBIT', 'SPOT':
                 return self._get_balance_unified_bybit()
@@ -56,7 +55,7 @@ class Client:
                 return ''
 
     @logger.catch()
-    def _get_positions_coin_um_futures_binance(self) -> tuple | str:
+    def _get_positions_coin_um_futures_binance(self, coin_name: str) -> tuple | str:
         try:
             positions = connect_um_futures_client().account(recvWindow=10000)['positions']
         except ClientError as error:
@@ -64,7 +63,7 @@ class Client:
                         f"error message: {error.error_message}")
             return error.error_message
         all_positions = (position for position in positions if float(position['positionAmt']) != 0)
-        return tuple(position for position in all_positions if position.get('symbol') == self.coin_name)
+        return tuple(position for position in all_positions if position.get('symbol') == coin_name)
 
     @logger.catch()
     def _get_balance_um_futures_binance(self) -> dict | str:

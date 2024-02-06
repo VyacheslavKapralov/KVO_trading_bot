@@ -3,12 +3,12 @@ from loguru import logger
 
 from exchanges.binance_api.klines_without_apikey import get_klines_futures_without_api, get_klines_spot_without_api
 from exchanges.bybit_api.coin_info import get_kline_bybit
-from exchanges.working_with_data.time_frames_editing import get_interval_for_bybit
-from indicators.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
+from utils.time_frames_editing import get_interval_for_bybit
+from utils.add_indicators_to_dataframe import add_exponential_moving_average, add_moving_average
 
 
 @logger.catch()
-def add_data_frame(strategy_settings: dict, limit: int):
+def add_data_frame(strategy_settings: dict, limit: int = 500):
     match strategy_settings['exchange'], strategy_settings['exchange_type']:
         case 'BYBIT', 'FUTURES':
             klines = get_kline_bybit('linear', strategy_settings['coin_name'],
@@ -17,13 +17,13 @@ def add_data_frame(strategy_settings: dict, limit: int):
         case 'BYBIT', 'SPOT':
             klines = get_kline_bybit('spot', strategy_settings['coin_name'],
                                      get_interval_for_bybit(strategy_settings['time_frame']))
-            return klines
+            return get_dataframe_pandas_bybit(klines['result']['list'])
         case 'BINANCE', 'FUTURES':
             klines = get_klines_futures_without_api(strategy_settings['coin_name'], strategy_settings['time_frame'])
             return get_dataframe_pandas_binance(klines)
         case 'BINANCE', 'SPOT':
             klines = get_klines_spot_without_api(strategy_settings['coin_name'], strategy_settings['time_frame'])
-            return klines
+            return get_dataframe_pandas_binance(klines)
 
 
 @logger.catch()

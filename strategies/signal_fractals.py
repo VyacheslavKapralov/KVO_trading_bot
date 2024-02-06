@@ -1,11 +1,12 @@
 import pandas as pd
 from loguru import logger
 
-from exchanges.bybit_api.coin_info import get_instrument_info_bybit, get_fee_bybit
+from exchanges.bybit_api.coin_info import get_instrument_info_bybit
 from exchanges.client.client import Client
 from exchanges.trading.position import Position
-from exchanges.working_with_data.add_dataframe import add_data_frame
-from indicators.add_indicators_to_dataframe import add_average_true_range_period, add_fractals_indicator
+from utils.add_dataframe import add_data_frame
+from utils.add_indicators_to_dataframe import add_average_true_range_period, add_fractals_indicator
+from utils.utils import get_rounding_accuracy, get_largest_volume
 
 
 @logger.catch()
@@ -138,17 +139,6 @@ def calculation_stop_take(side: str, open_position_price: float, stop_loss_usd: 
 
 
 @logger.catch()
-def calculation_fee(price_round: float, strategy_settings: dict, volume: float) -> str:
-    fee = get_fee_bybit('linear', strategy_settings['coin_name'])['result']['list'][0]['makerFeeRate']
-    logger.info(f"fee - {fee}")
-
-    if isinstance(fee, str):
-        return f"Не удалось получить комиссию по инструменту {strategy_settings['coin_name']}\n" \
-               f"Ответ сервера: {fee}"
-    return str(round(price_round * volume * fee, 5)).rstrip('0').rstrip('.')
-
-
-@logger.catch()
 def open_order(price_round: float, side: str, stop_loss_round: float, strategy_settings: dict,
                take_profit_round: float, order_type: str, volume: float) -> [bool, str | dict]:
     position = Position(strategy_settings['exchange'], strategy_settings['exchange_type'],
@@ -235,23 +225,6 @@ async def fractal_strategy(strategy_settings: dict) -> [bool, None | str | list]
 
     return get_orders_list(balance_client, coin_info, data_frame, direction, min_lot, strategy_settings,
                            order_type='Limit')
-
-
-@logger.catch()
-def get_largest_volume(balance_client: float, position_min_quantity: str, percentage_deposit: float,
-                       price: float) -> float:
-    try:
-        decimal_places = get_rounding_accuracy(position_min_quantity)
-        return round(balance_client * percentage_deposit / 100 / price, decimal_places)
-    except ZeroDivisionError:
-        return
-
-
-@logger.catch()
-def get_rounding_accuracy(tick_size: str) -> int:
-    if tick_size.find('.') > 0:
-        return tick_size.split('.')[-1].find('1') + 1
-    return
 
 
 if __name__ == '__main__':

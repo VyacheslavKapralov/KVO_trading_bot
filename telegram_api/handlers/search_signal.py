@@ -8,10 +8,10 @@ from aiogram.dispatcher.filters import Text
 from database.database import create_database, db_write
 from exchanges.client.client import Client
 from exchanges.trading.action_with_positions import launch_strategy
-from exchanges.working_with_data.time_frames_editing import get_time_seconds, get_waiting_time
+from utils.time_frames_editing import get_time_seconds, get_waiting_time
 from strategies.signal_ema import output_signals_ema
 from strategies.signal_fractals import fractal_strategy
-from telegram_api.handlers.decorators import check_int, check_float, check_coin_name, deposit_verification
+from utils.decorators import check_int, check_float, check_coin_name, deposit_verification
 from telegram_api.handlers.keyboards import (
     menu_exchange,
     menu_exchange_type,
@@ -20,6 +20,7 @@ from telegram_api.handlers.keyboards import (
     menu_strategy,
     menu_price_stop,
     menu_rollback,
+    menu_percentage,
 )
 from telegram_api.handlers.state_machine import EmaStrategyState, FractalStrategyState, StrategyState
 
@@ -32,7 +33,6 @@ def ignore_check(func):
         global IGNORE_MESSAGE
         if not IGNORE_MESSAGE:
             return await func(message, state)
-
     return wrapper
 
 
@@ -79,7 +79,7 @@ async def strategy(callback: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as strategy_settings:
         strategy_settings['strategy'] = callback.data
     await StrategyState.exchange.set()
-    await callback.message.answer('На какой бирже искать сигналы?', reply_markup=menu_exchange())
+    await callback.message.answer('На какой бирже запустить бота?', reply_markup=menu_exchange())
 
 
 @logger.catch()
@@ -87,7 +87,7 @@ async def change_exchange(callback: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as strategy_settings:
         strategy_settings['exchange'] = callback.data.upper()
     await StrategyState.exchange_type.set()
-    await callback.message.answer('На какой секции биржи искать сигналы?', reply_markup=menu_exchange_type())
+    await callback.message.answer('На какой секции биржи?', reply_markup=menu_exchange_type())
 
 
 @logger.catch()
@@ -245,34 +245,25 @@ async def get_take_profit_fractal(message: types.Message, state: FSMContext):
 async def result(message: types.Message, state: FSMContext):
     global IGNORE_MESSAGE
     IGNORE_MESSAGE = True
-    async with state.proxy() as strategy_settings:
-        await sending_start_message(strategy_settings, message)
+    strategy_settings = await state.get_data()
+    await sending_start_message(strategy_settings, message)
     await state.finish()
     if strategy_settings['strategy'] == 'EMA':
-        await search_ema_signal(message, state, strategy_settings)
+        await search_ema_signal(message, strategy_settings)
     elif strategy_settings['strategy'] == 'FRACTAL':
-        await search_fractal_signal(message, state, strategy_settings)
+        await search_fractal_signal(message, strategy_settings)
 
 
 @logger.catch()
 async def search_ema_signal(message, strategy_settings):
     current_position_last = {'position': None}
+    await sending_start_ema_strategy(strategy_settings, message)
     global INTERRUPT
     while not INTERRUPT:
         now_time = datetime.datetime.now()
         waiting_time_seconds = await get_waiting_time(now_time, strategy_settings['time_frame'])
         await asyncio.sleep(waiting_time_seconds)
-        await sending_start_ema_strategy(strategy_settings, message)
-        flag, signal = await output_signals_ema(
-            exchange=strategy_settings['exchange'],
-            exchange_type=strategy_settings['exchange_type'],
-            symbol=strategy_settings['coin_name'],
-            time_frame=strategy_settings['time_frame'],
-            period_stop=strategy_settings['stop_line'],
-            period_fast=strategy_settings['ema'],
-            period_slow=strategy_settings['ma'],
-            current_position_last=current_position_last
-        )
+        flag, signal = await output_signals_ema(current_position_last, strategy_settings)
         if flag:
             await sending_signal_message(strategy_settings, message, signal)
             success, order = await launch_strategy(strategy_settings)
@@ -298,21 +289,20 @@ async def search_ema_signal(message, strategy_settings):
 
 
 @logger.catch()
-async def search_fractal_signal(message, state, strategy_settings):
-    # client = Client(strategy_settings['exchange'], strategy_settings['exchange_type'], strategy_settings['coin_name'])
+async def search_fractal_signal(message, strategy_settings):
+    client = Client(strategy_settings['exchange'], strategy_settings['exchange_type'])
     await sending_start_fractal_strategy(strategy_settings, message)
     global INTERRUPT
     while not INTERRUPT:
-        # current_position_last = client.get_coin_position()
         now_time = datetime.datetime.now()
         waiting_time_seconds = await get_waiting_time(now_time, strategy_settings['time_frame'])
-        # if current_position_last:
-        #     await asyncio.sleep(waiting_time_seconds)
-        #     continue
+        current_position_last = client.get_coin_position(strategy_settings['coin_name'])
+        if current_position_last:
+            await asyncio.sleep(waiting_time_seconds)
+            continue
         order = await fractal_strategy(strategy_settings)
         if isinstance(order, str):
             await message.answer(order)
-
         elif isinstance(order, list):
             logger.info(f"Ордер: {order}")
             for elem in order:
@@ -328,7 +318,6 @@ async def search_fractal_signal(message, state, strategy_settings):
                     signal='success',
                     position=elem
                 )
-
         await asyncio.sleep(waiting_time_seconds)
 
     await message.answer("Поиск сигналов остановлен.")
@@ -381,7 +370,7 @@ def register_handlers_commands_search_signal(dp: Dispatcher):
     dp.register_message_handler(command_chancel, commands=['сброс', 'прервать', 'chancel'], state='*')
     dp.register_message_handler(command_chancel, Text(equals=['сброс', 'прервать', 'chancel'], ignore_case=True),
                                 state='*')
-    dp.register_message_handler(command_search_signal, commands=['search'])
+    dp.register_message_handler(command_search_signal, commands=['signal'])
     dp.register_callback_query_handler(strategy, state=StrategyState.strategy)
     dp.register_callback_query_handler(change_exchange, state=StrategyState.exchange)
     dp.register_callback_query_handler(change_exchange_type, state=StrategyState.exchange_type)
